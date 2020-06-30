@@ -22,7 +22,6 @@ const saveSplits = async (db, url, dataset, splits, size) => {
   */
   let i = 0
   const originalSize = size
-  const _bulkSize = splits.length + 1
 
   const writes = []
   for (const parts of splits) {

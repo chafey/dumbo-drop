@@ -65,14 +65,13 @@ describe('serialized-put-item', () => {
         putItem(db, {ItemNumber: 1})
         .then(async () => {
             assert(0 && "should not resolve")
-            db.putItem = async(item) => {return Promise.resolve()}
-            await putItem(db, {ItemNumber: 2})
         })
-        .catch((err) => {
-            console.log('got error')
+        .catch(async (err) => {
             assert(err)
             assert(err.message === "simulated failure")
             assert(err.name === "Error")
+            db.putItem = async(item) => {return Promise.resolve()}
+            await putItem(db, {ItemNumber: 2})
         })
     })
 
