@@ -6,12 +6,24 @@ const lambda = require('../../lambda')()
 const limiter = require('../../limiter')
 const s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })
 const limits = require('../../limits')
+const get_create_part_v2 = require('../../http/get-create_part_v2');
 
 const output = { completed: 0, completedBytes: 0, inflight: 0, updateQueue: 0, largest: 0 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-const lambdaName = process.env.DUMBO_CREATE_PART_LAMBDA
+const executeCreateParts = async (query, local) => {
+  if (local) {
+    const result = await get_create_part_v2.handler({
+      query
+    })
+    const body = JSON.parse(result.body)
+    return body
+  } else {
+    return lambda(process.env.DUMBO_CREATE_PART_LAMBDA, query)
+  }
+}
+
 
 // print out current status (called by interval function set below)
 const history = []
@@ -86,8 +98,9 @@ const getItemsForCARFile = async function * (db) {
 
 let updateMutex = null
 
+
 // creates a car file from a list of files or file slices
-const createPart = async (bucket, db, urls, size) => {
+const createPart = async (bucket, db, urls, size, local) => {
   output.inflight++
   const files = await db.getItems(urls, 'parts', 'size')
   for (const [f, item] of Object.entries(files)) {
@@ -96,7 +109,7 @@ const createPart = async (bucket, db, urls, size) => {
 
   const blockBucket = process.env.DUMBO_BLOCK_BUCKET
   const query = { Bucket: `dumbo-v2-cars-${bucket}`, files, blockBucket }
-  const resp = await lambda(lambdaName, query)
+  const resp = await executeCreateParts(query, local)
   const { results, details, root } = resp
   const carUrl = details.Location
   const updates = []
@@ -123,6 +136,8 @@ const run = async argv => {
   // setup interval to print out progress/status
   if (!argv.silent) interval = setInterval(print, 1000)
 
+  const local = argv.local
+
   // create bucket for cars
   const { bucket, concurrency } = argv
   try {
@@ -138,10 +153,8 @@ const run = async argv => {
   // get list of urls to files or file slices to process and create cars from them
   // using the limiter
   for await (const [size, urls] of getItemsForCARFile(db, bucket)) {
-    console.log('size=', size)
-    console.log('urls=',urls)
     if (urls.length > output.largest) output.largest = urls.length
-    await limit(createPart(bucket, db, urls, size))
+    await limit(createPart(bucket, db, urls, size, local))
     await sleep(50) // protect against max per second request limits
   }
   await limit.wait()

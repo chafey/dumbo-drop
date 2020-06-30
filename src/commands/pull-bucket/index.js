@@ -68,7 +68,7 @@ const inflight = []
 const upperLimit = 1024 * 1024 * 912
 
 // main entrypoint for parsing a bucket
-const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local=false) => {
+const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local = false) => {
   const opts = { Bucket, Prefix, StartAfter }
   const limit = limiter(concurrency)
   const display = { Bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }
@@ -120,7 +120,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     if (info.Size) {
       if (force || !(await skipItem(db, info.url, checkHead))) {
         inflight.push(info.Key)
-        await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size)
+        await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size, local)
         display.complete += 1
         inflight.splice(inflight.indexOf(info.Key), 1)
         display.processed += info.Size
@@ -171,7 +171,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     const urls = Object.keys(files)
     if (urls.length) {
       urls.forEach(url => inflight.push(keyMap[url]))
-      await parseFile.files(tableName, blockBucket, files, opts.Bucket)
+      await parseFile.files(tableName, blockBucket, files, opts.Bucket, local)
       urls.forEach(url => inflight.splice(inflight.indexOf(keyMap[url]), 1))
       display.complete += urls.length
       display.processed += Object.values(files).reduce((x, y) => x + y, 0)

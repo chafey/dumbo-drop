@@ -5,7 +5,7 @@ const commp = require('./src/commands/commp')
 const inspect = require('./src/commands/inspect')
 
 const runPullBucketV2 = async argv => {
-  await parseBucketV2(argv.bucket, argv.prefix, argv.start, argv.concurrency, argv.checkHead, argv.force)
+  await parseBucketV2(argv.bucket, argv.prefix, argv.start, argv.concurrency, argv.checkHead, argv.force, argv.local)
   console.log('all done :)')
   process.exit(0) // HACK: force process to exit because it doesn't right now...
 }
@@ -36,6 +36,11 @@ const createParts2Options = yargs => {
   yargs.option('concurrency', {
     desc: 'Concurrent Lambda requests',
     default: 100
+  })
+  yargs.option('local', {
+    desc: 'Run processing function local (instead of remote with AWS lambda)',
+    default: false,
+    type: 'boolean'
   })
 }
 
