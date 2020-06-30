@@ -30,6 +30,22 @@ describe('store', () => {
     assert(mockS3.putParams[0].Key === 'bafyreigbtj4x7ip5legnfznufuopl4sg4knzc2cof6duas4b3q2fy6swua/encode')
   })
 
+  it('put fails', async () => {
+    const mockS3 = makeMockS3()
+    mockS3.putObject = (params) => {
+      return {
+        promise: async () => {return new Promise((resolve, reject) => {reject()})}
+      }
+    }
+
+    const store = createStore(Block, "test-bucket", 'public-read', mockS3)
+    const mockBlock = makeMockBlock()
+    store.put(mockBlock)
+      .then(() => {assert("should not succeed")})
+      .catch(() => {})
+  })
+
+
   it('get succeeds', async () => {
     const mockS3 = makeMockS3()
     const store = createStore(Block, "test-bucket", 'public-read', mockS3)
@@ -37,6 +53,20 @@ describe('store', () => {
     assert(mockS3.getParams.length)
     assert(mockS3.getParams[0].Bucket =='test-bucket')
     assert(mockS3.getParams[0].Key == 'bafyreigbtj4x7ip5legnfznufuopl4sg4knzc2cof6duas4b3q2fy6swua/encode')
+  })
+
+  it('get fails', async () => {
+    const mockS3 = makeMockS3()
+    mockS3.getObject = (params) => {
+      return {
+        promise: async () => {return new Promise((resolve, reject) => {reject()})}
+      }
+    }
+
+    const store = createStore(Block, "test-bucket", 'public-read', mockS3)
+    store.get('bafyreigbtj4x7ip5legnfznufuopl4sg4knzc2cof6duas4b3q2fy6swua')
+      .then(() => {assert("should not succeed")})
+      .catch(() => {})
   })
 
 
