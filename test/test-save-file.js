@@ -11,6 +11,7 @@ describe('save-file', () => {
             items,
             putItem: async (item) => {
                 items.push(item)
+                return [{UnprocessedItems: {} }]
             }
         }
     }
@@ -21,15 +22,84 @@ describe('save-file', () => {
         assert(saveFile.debug)
     })
 
-    /*
     it('saveFile succeeds', async () => {
         const db = makeMockDB()
-        const url = "http://foo.com"
-        const dataset = "my-bucket"
-        const parts = []
-        const size = 1024
-        await saveFile.saveFile(db, url, dataset, parts, size)
+        //const tableName = 'dumbo-v2-chafey-dumbo-drop-test'
+        //const db = require('../src/queries')(tableName)
+        const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR"
+        const dataset = "chafey-dumbo-drop-test"
+        const parts = ['mAVUSIBIfd3Bfjibu+qyv4Ne+zI3ULJtVU+PcuQQoPZqWyfFq']
+        const size = 180916
+        let result = await saveFile.saveFile(db, url, dataset, parts, size)
+        assert(result.length === 1)
+        assert(result[0].UnprocessedItems)
+        assert(Object.keys(result[0].UnprocessedItems).length === 0)
     })
-    */
+
+    it('saveSplits succeeds', async () => {
+        const db = makeMockDB()
+        //const tableName = 'dumbo-v2-chafey-dumbo-drop-test'
+        //const db = require('../src/queries')(tableName)
+        const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/MG1_J2KR"
+        const dataset = "chafey-dumbo-drop-test"
+        const size = 12233370
+        const splits= [
+            [
+              'mAVUSIOCS5sGDcqo+KTdHYzOxhw8DPspKgvkj9jUTUlj1FTx2',
+              'mAVUSIDka3ljTJS76DJIkjXtVsrIHMkl80RoSUo9HEAUUVbfN',
+              'mAVUSIK7kYCwVvoTMDwuiUZiPqfnWNJLyy03XYOAsQfwDeJ2O',
+              'mAVUSIL/GeDucGpqFkweMBqfnhK0XZRmnZ2kdz8FY/+aam6TW'
+            ],
+            [
+              'mAVUSIKqX9enX45olVXJiXWFy3zP3oZpoDbsZws3MfMPPVIUP',
+              'mAVUSIA+NVAYM3I52ErQsl7jqVx1y0XgaEewLTlz0quv9l6gl',
+              'mAVUSINcRJfjb5cjLbRE/VzF9yvQTucuRxoByuM3d2jgGShDk',
+              'mAVUSIGMxH0NEX7bIwH+8YoFoI2Ru5mI6K6f+9Nor2dj2X0fe'
+            ],
+            [
+              'mAVUSIPJOexMIHtmnsAjacoV1G6mopeFE1aKkpveEcnlfnPEC',
+              'mAVUSILbMwMwlHq3W6NxsWcA/c5jOBTmWMMIbwl5wlzze6JEQ',
+              'mAVUSIGc0TQARd6Rw6bWMylkrvI4rMpc5ssXqCp6aQ9D+SUtc',
+              'mAVUSIP6R2nBq7236HNmCKcjdXnZxgb/jNISB3QzuQXeZvke1'
+            ]
+          ]
+        let result = await saveFile.saveSplits(db, url, dataset, splits, size)
+        assert(result.length === 4)
+        assert(result[0][0].UnprocessedItems)
+        assert(Object.keys(result[0][0].UnprocessedItems).length === 0)
+        assert(result[1][0].UnprocessedItems)
+        assert(Object.keys(result[1][0].UnprocessedItems).length === 0)
+    })
+
+
+    // saveFiles
+/*
+item= {
+  url: 'https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/MG1_J2KR',
+  size: 12233370,
+  dataset: 'chafey-dumbo-drop-test',
+  parts: [
+    'mAVUSIOCS5sGDcqo+KTdHYzOxhw8DPspKgvkj9jUTUlj1FTx2',
+    'mAVUSIDka3ljTJS76DJIkjXtVsrIHMkl80RoSUo9HEAUUVbfN',
+    'mAVUSIK7kYCwVvoTMDwuiUZiPqfnWNJLyy03XYOAsQfwDeJ2O',
+    'mAVUSIL/GeDucGpqFkweMBqfnhK0XZRmnZ2kdz8FY/+aam6TW',
+    'mAVUSIKqX9enX45olVXJiXWFy3zP3oZpoDbsZws3MfMPPVIUP',
+    'mAVUSIA+NVAYM3I52ErQsl7jqVx1y0XgaEewLTlz0quv9l6gl',
+    'mAVUSINcRJfjb5cjLbRE/VzF9yvQTucuRxoByuM3d2jgGShDk',
+    'mAVUSIGMxH0NEX7bIwH+8YoFoI2Ru5mI6K6f+9Nor2dj2X0fe',
+    'mAVUSIPJOexMIHtmnsAjacoV1G6mopeFE1aKkpveEcnlfnPEC',
+    'mAVUSILbMwMwlHq3W6NxsWcA/c5jOBTmWMMIbwl5wlzze6JEQ',
+    'mAVUSIGc0TQARd6Rw6bWMylkrvI4rMpc5ssXqCp6aQ9D+SUtc',
+    'mAVUSIP6R2nBq7236HNmCKcjdXnZxgb/jNISB3QzuQXeZvke1'
+  ]
+}*/
+
+/*
+result= [
+  [ { UnprocessedItems: {} } ],
+  [ { UnprocessedItems: {} } ],
+  [ { UnprocessedItems: {} } ],
+  [ { UnprocessedItems: {} } ]
+]*/
 
 })

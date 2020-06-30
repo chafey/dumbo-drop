@@ -1,22 +1,10 @@
 const limits = require('../../limits')
-
-let writeMutex
-
-const debug = { pending: 0, free: 0 }
+const putItem = require('./serialized-put-item')
 
 // saves the parsing results for a single file to dynamo.
 const saveFile = async (db, url, dataset, parts, size) => {
   const item = { url, size, dataset, parts }
-  debug.pending++
-  while (writeMutex) {
-    await writeMutex
-  }
-  writeMutex = db.putItem(item)
-  const resp = await writeMutex
-  writeMutex = null
-  debug.free++
-  debug.pending--
-  return resp
+  return putItem(db, item)
 }
 
 const saveSplits = async (db, url, dataset, splits, size) => {
@@ -35,34 +23,25 @@ const saveSplits = async (db, url, dataset, splits, size) => {
   let i = 0
   const originalSize = size
   const _bulkSize = splits.length + 1
-  debug.pending += _bulkSize
-  while (writeMutex) {
-    await writeMutex
+
+  const writes = []
+  for (const parts of splits) {
+    const _size = size
+    size -= limits.MAX_CAR_FILE_SIZE
+    const l = _size < limits.MAX_CAR_FILE_SIZE ? _size : limits.MAX_CAR_FILE_SIZE
+    const item = { size: l, dataset, parts, url: `::split::${url}::${i}` }
+    writes.push(putItem(db, item))
+    i++
   }
-  writeMutex = new Promise(resolve => {
-    const writes = []
-    for (const parts of splits) {
-      const _size = size
-      size -= limits.MAX_CAR_FILE_SIZE
-      const l = _size < limits.MAX_CAR_FILE_SIZE ? _size : limits.MAX_CAR_FILE_SIZE
-      const item = { size: l, dataset, parts, url: `::split::${url}::${i}` }
-      writes.push(db.putItem(item))
-      i++
-    }
-    resolve(Promise.all(writes))
-  })
-  const writeResponses = await writeMutex
+  const writeResponses = await Promise.all(writes)
   const item = { url, size: originalSize, dataset, split: true }
-  writeMutex = db.putItem(item)
-  const resp = await writeMutex
-  writeMutex = null
-  debug.free += _bulkSize
-  debug.pending -= _bulkSize
-  return [resp, ...writeResponses]
+  const resp = await putItem(db, item)
+  const result = [resp, ...writeResponses] 
+  return result
 }
 
 module.exports = {
     saveFile,
     saveSplits,
-    debug
+    debug : putItem.debug
 }

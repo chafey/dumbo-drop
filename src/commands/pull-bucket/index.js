@@ -7,10 +7,9 @@ const logUpdate = require('log-update')
 const skipItems = require('./skip-items')
 const listFiles = require('./list-files')
 const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
-
+const limits = require('../../limits')
 const AWS = require('aws-sdk')
 const awsRegion = new AWS.Config().region;
-
 let latest
 
 const getURL = fileInfo => {
@@ -22,7 +21,7 @@ const getURL = fileInfo => {
 }
 
 const inflight = []
-const upperLimit = 1024 * 1024 * 912
+const upperLimit = limits.MAX_CAR_FILE_SIZE
 
 // main entrypoint for parsing a bucket
 const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local = false) => {
