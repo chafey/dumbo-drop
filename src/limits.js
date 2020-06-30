@@ -7,8 +7,8 @@ const MAX_CAR_FILE_SIZE = 1024 * 1024 * 912
 // number of files we can store in the CAR header
 const MAX_CAR_FILES = 2000
 
-// The maximum IPLD block size is 1MB. 
-// TODO: document why it is 1MB 
+// We use a maximum block size of 1MB because that was the limit in IPFS
+// bitswap (at least in the past)
 const MAX_BLOCK_SIZE = 1024 * 1024
 
 module.exports = {

@@ -68,7 +68,7 @@ const inflight = []
 const upperLimit = 1024 * 1024 * 912
 
 // main entrypoint for parsing a bucket
-const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false) => {
+const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local=false) => {
   const opts = { Bucket, Prefix, StartAfter }
   const limit = limiter(concurrency)
   const display = { Bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }

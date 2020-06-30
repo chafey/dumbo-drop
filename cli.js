@@ -25,6 +25,11 @@ const bucketOptions = yargs => {
     default: false,
     type: 'boolean'
   })
+  yargs.option('local', {
+    desc: 'Run processing function local (instead of remote with AWS lambda)',
+    default: false,
+    type: 'boolean'
+  })
 }
 
 const createParts2Options = yargs => {

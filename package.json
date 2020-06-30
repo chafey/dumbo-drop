@@ -2,15 +2,14 @@
   "name": "lambda",
   "version": "0.0.0",
   "description": "",
-  "main": "lambda.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/test-*.js"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
   "license": "(Apache-2.0 AND MIT)",
   "dependencies": {
-    "@architect/architect": "^6.0.29",
     "aws-config": "^1.3.2",
     "bent": "^7.0.4",
     "fixed-chunker": "0.0.2",
