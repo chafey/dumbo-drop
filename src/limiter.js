@@ -14,9 +14,8 @@ const limiter = concurrency => {
   // the configured concurrency
   const ret = async promise => {
     const p = (async () => { await promise })()
-    // FIXME: possible race - should add() before delete()
-    p.then(() => pending.delete(p))
     pending.add(p)
+    p.then(() => pending.delete(p))
     while (pending.size >= concurrency) {
       const r = await Promise.race(Array.from(pending))
       if (next) nextResolve(r)
