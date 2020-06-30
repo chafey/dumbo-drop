@@ -1,4 +1,3 @@
-const limits = require('../../limits')
 const putItem = require('./serialized-put-item')
 
 // saves the parsing results for a single file to dynamo.
@@ -7,7 +6,7 @@ const saveFile = async (db, url, dataset, parts, size) => {
   return putItem(db, item)
 }
 
-const saveSplits = async (db, url, dataset, splits, size) => {
+const saveSplits = async (db, url, dataset, splits, size, limits) => {
   /*
   DynamoDB has a 400K limit on the size of an entry. With
   the size of hash strings that means we can't store the

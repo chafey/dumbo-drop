@@ -1,4 +1,3 @@
-const limits = require('../../limits')
 const saveFile = require('./save-file')
 const executeParseFile = require('./execute-parse-file')
 
@@ -8,7 +7,7 @@ const executeParseFile = require('./execute-parse-file')
 // If the file size exceeds a certain
 // limit, then it is split into multiple pieces in dynamo to work around
 // a data size limit in dynamo
-const parseFile = async (tableName, blockBucket, url, dataset, size, local) => {
+const parseFile = async (tableName, blockBucket, url, dataset, size, local, limits) => {
   const db = require('../../queries')(tableName)
   let opts = { url, blockBucket }
   let parts = []
@@ -25,7 +24,7 @@ const parseFile = async (tableName, blockBucket, url, dataset, size, local) => {
       splits.push(chunks)
       i += limits.MAX_CAR_FILE_SIZE
     }
-    const resp = await saveFile.saveSplits(db, url, dataset, splits, size)
+    const resp = await saveFile.saveSplits(db, url, dataset, splits, size, limits)
     return resp
   }
 }

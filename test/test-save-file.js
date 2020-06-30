@@ -59,8 +59,9 @@ describe('save-file', () => {
     })
 
     it('saveSplits succeeds', async () => {
-        const MAX_CAR_FILE_SIZE = limits.MAX_CAR_FILE_SIZE
-        limits.MAX_CAR_FILE_SIZE = 1024 * 1024 * 4
+        const testLimits = {
+            MAX_CAR_FILE_SIZE: 1024 * 1024 * 4
+        }
         const db = makeMockDB()
         //const tableName = 'dumbo-v2-chafey-dumbo-drop-test'
         //const db = require('../src/queries')(tableName)
@@ -87,7 +88,7 @@ describe('save-file', () => {
               'mAVUSIP6R2nBq7236HNmCKcjdXnZxgb/jNISB3QzuQXeZvke1'
             ]
           ]
-        let result = await saveFile.saveSplits(db, url, dataset, splits, size)
+        let result = await saveFile.saveSplits(db, url, dataset, splits, size, testLimits)
         assert(db.items.length === 4)
         assert(db.items[0].size === 4194304)
         assert(db.items[0].dataset === 'chafey-dumbo-drop-test')
@@ -111,8 +112,6 @@ describe('save-file', () => {
         assert(Object.keys(result[0][0].UnprocessedItems).length === 0)
         assert(result[1][0].UnprocessedItems)
         assert(Object.keys(result[1][0].UnprocessedItems).length === 0)
-
-        limits.MAX_CAR_FILE_SIZE = MAX_CAR_FILE_SIZE
     })
 
     it('saveSplits fails', async () => {
@@ -141,7 +140,7 @@ describe('save-file', () => {
               'mAVUSIP6R2nBq7236HNmCKcjdXnZxgb/jNISB3QzuQXeZvke1'
             ]
           ]
-        saveFile.saveSplits(db, url, dataset, splits, size)
+        saveFile.saveSplits(db, url, dataset, splits, size, limits)
         .then(() => {assert(0 && "should not happen")})
         .catch((err) => {
             assert(err)

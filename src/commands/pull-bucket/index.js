@@ -76,7 +76,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     if (info.Size) {
       if (force || !(await skipItems.skipItem(db, info.url, checkHead))) {
         inflight.push(info.Key)
-        await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size, local)
+        await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size, local, limits)
         display.complete += 1
         inflight.splice(inflight.indexOf(info.Key), 1)
         display.processed += info.Size
