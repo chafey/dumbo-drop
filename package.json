@@ -16,7 +16,6 @@
     "ipfs-for-car": "0.0.1",
     "log-update": "^3.3.0",
     "pretty-bytes": "^5.3.0",
-    "remaining-time": "0.0.3",
     "unixfsv1-part-importer": "0.0.1",
     "yargs": "^15.1.0"
   },

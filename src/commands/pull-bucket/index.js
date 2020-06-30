@@ -1,60 +1,17 @@
 const parseFile = require('./parse-file')
-const { readFile, writeFile } = require('fs').promises
+const { readFile } = require('fs').promises
 const { writeFileSync } = require('fs')
 const limiter = require('../../limiter')
 const prettyBytes = require('pretty-bytes')
 const logUpdate = require('log-update')
-const bent = require('bent')
-const head = bent('HEAD', 200, 403, 500 /* these are intermittent and retries tend to fix */)
-const remainingTime = require('remaining-time')
-
+const skipItems = require('./skip-items')
+const listFiles = require('./list-files')
 const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 
 const AWS = require('aws-sdk')
-const awsConfig = require('aws-config')
-
 const awsRegion = new AWS.Config().region;
 
 let latest
-
-const skipItem = async (db, url, checkHead = false) => {
-  const item = await db.getItem(url, ['url'])
-  if (item && item.url) return true
-  if (!checkHead) return false
-  const resp = await head(url)
-  if (resp.statusCode === 403) return true
-  return false
-}
-
-const skipItems = async (db, urls, checkHead = false, force = false) => {
-  const found = force ? new Set() : new Set(Object.keys(await db.getItems(urls)))
-  const missing = urls.filter(u => !found.has(u))
-  const promises = []
-  if (checkHead) {
-    for (const url of missing) {
-      promises.push(head(url).then(resp => {
-        if (resp.statusCode === 403) found.add(url)
-      }))
-    }
-  }
-  await Promise.all(promises)
-  return found
-}
-
-// returns list of files in bucket
-const ls = async function * (opts) {
-  opts = { ...opts }
-  let data
-  do {
-    const s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })
-    data = await s3.listObjectsV2(opts).promise()
-    yield * data.Contents
-    if (!data.Contents.length) {
-      return
-    }
-    opts.StartAfter = data.Contents[data.Contents.length - 1].Key
-  } while (data.Contents.length)
-}
 
 const getURL = fileInfo => {
   if (fileInfo.Bucket.includes('.')) {
@@ -118,7 +75,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
   const sizes = []
   const parse = async info => {
     if (info.Size) {
-      if (force || !(await skipItem(db, info.url, checkHead))) {
+      if (force || !(await skipItems.skipItem(db, info.url, checkHead))) {
         inflight.push(info.Key)
         await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size, local)
         display.complete += 1
@@ -161,7 +118,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
       keyMap[info.url] = info.Key
       return info
     })
-    const found = await skipItems(db, Object.keys(files), checkHead, force)
+    const found = await skipItems.skipItems(db, Object.keys(files), checkHead, force)
     for (const url of found) {
       display.skippedBytes += files[url]
       delete files[url]
@@ -178,7 +135,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     }
   }
   // get list of files from bucket and parse them through the limiter
-  for await (let fileInfo of ls(opts)) {
+  for await (let fileInfo of listFiles.ls(opts)) {
     if (!fileInfo.Size) continue
     fileInfo = { ...fileInfo, ...opts }
 
@@ -209,4 +166,3 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
 
 module.exports = run
 module.exports.getURL = getURL
-// run('prd-tnm', 'StagedProducts/')

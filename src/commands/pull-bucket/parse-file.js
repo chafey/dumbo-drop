@@ -1,82 +1,6 @@
-const lambda = require('../../lambda')()
 const limits = require('../../limits')
-const get_parse_file_v2 = require('../../http/get-parse_file_v2');
-
-const executeParseFile = async (opts, local) => {
-  if (local) {
-      const result = await get_parse_file_v2.handler({
-        query: opts
-      })
-      const body = JSON.parse(result.body)
-      return body
-  } else {
-    return lambda(process.env.DUMBO_PARSE_FILE_LAMBDA, opts)
-  }
-}
-
-const limit = limits.MAX_CAR_FILE_SIZE
-let writeMutex
-
-const debug = { pending: 0, free: 0 }
-
-const sep = '\n\n\n\n\n\n\n\n\n\n'
-
-// saves the parsing results for a single file to dynamo.
-const saveFile = async (db, url, dataset, parts, size) => {
-  const item = { url, size, dataset, parts }
-  debug.pending++
-  while (writeMutex) {
-    await writeMutex
-  }
-  writeMutex = db.putItem(item)
-  const resp = await writeMutex
-  writeMutex = null
-  debug.free++
-  debug.pending--
-  return resp
-}
-
-const saveSplits = async (db, url, dataset, splits, size) => {
-  /*
-  DynamoDB has a 400K limit on the size of an entry. With
-  the size of hash strings that means we can't store the
-  parts of a file over 7GB.
-
-  Since we're already breaking up the chunking of files
-  over 1GB it makes sense to store the parts split by
-  the same limit. This is all a bit of a hack, but it
-  was going to be necessary to break up large files
-  at some boundary point anyway in order to spread
-  files over 32GB into multiple .car files later on.
-  */
-  let i = 0
-  const originalSize = size
-  const _bulkSize = splits.length + 1
-  debug.pending += _bulkSize
-  while (writeMutex) {
-    await writeMutex
-  }
-  writeMutex = new Promise(resolve => {
-    const writes = []
-    for (const parts of splits) {
-      const _size = size
-      size -= limits.MAX_CAR_FILE_SIZE
-      const l = _size < limits.MAX_CAR_FILE_SIZE ? _size : limits.MAX_CAR_FILE_SIZE
-      const item = { size: l, dataset, parts, url: `::split::${url}::${i}` }
-      writes.push(db.putItem(item))
-      i++
-    }
-    resolve(Promise.all(writes))
-  })
-  const writeResponses = await writeMutex
-  const item = { url, size: originalSize, dataset, split: true }
-  writeMutex = db.putItem(item)
-  const resp = await writeMutex
-  writeMutex = null
-  debug.free += _bulkSize
-  debug.pending -= _bulkSize
-  return [resp, ...writeResponses]
-}
+const saveFile = require('./save-file')
+const executeParseFile = require('./execute-parse-file')
 
 // parses a file by invoking the lambda function to read the file,
 // chunk it into IPLD blocks, store those blocks in S3 and write
@@ -90,7 +14,7 @@ const parseFile = async (tableName, blockBucket, url, dataset, size, local) => {
   let parts = []
   if (size < limits.MAX_CAR_FILE_SIZE) {
     parts = await executeParseFile(opts, local)
-    const resp = await saveFile(db, url, dataset, parts, size)
+    const resp = await saveFile.saveFile(db, url, dataset, parts, size)
     return resp
   } else {
     let i = 0
@@ -101,7 +25,7 @@ const parseFile = async (tableName, blockBucket, url, dataset, size, local) => {
       splits.push(chunks)
       i += limits.MAX_CAR_FILE_SIZE
     }
-    const resp = await saveSplits(db, url, dataset, splits, size)
+    const resp = await saveFile.saveSplits(db, url, dataset, splits, size)
     return resp
   }
 }
@@ -115,12 +39,12 @@ const parseFiles = async (tableName, blockBucket, files, dataset, local) => {
   const resp = await executeParseFile(opts, local)
   const writes = []
   for (const [url, parts] of Object.entries(resp)) {
-    writes.push(saveFile(db, url, dataset, parts, files[url]))
+    writes.push(saveFile.saveFile(db, url, dataset, parts, files[url]))
   }
   return Promise.all(writes)
 }
 
 module.exports = parseFile
 module.exports.files = parseFiles
-module.exports.debug = debug
+module.exports.debug = saveFile.debug
 
