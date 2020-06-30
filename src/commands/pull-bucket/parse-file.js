@@ -7,8 +7,7 @@ const executeParseFile = require('./execute-parse-file')
 // If the file size exceeds a certain
 // limit, then it is split into multiple pieces in dynamo to work around
 // a data size limit in dynamo
-const parseFile = async (tableName, blockBucket, url, dataset, size, local, limits) => {
-  const db = require('../../queries')(tableName)
+const parseFile = async (db, blockBucket, url, dataset, size, local, limits) => {
   let opts = { url, blockBucket }
   let parts = []
   if (size < limits.MAX_CAR_FILE_SIZE) {
@@ -31,8 +30,7 @@ const parseFile = async (tableName, blockBucket, url, dataset, size, local, limi
 
 // batch interface for parsing multiple small files into IPLD blocks stored in S3
 // using a lambda function and saving resulting CIDs in dynamo
-const parseFiles = async (tableName, blockBucket, files, dataset, local) => {
-  const db = require('../../queries')(tableName)
+const parseFiles = async (db, blockBucket, files, dataset, local) => {
   const urls = Object.keys(files)
   const opts = { urls, blockBucket }
   const resp = await executeParseFile(opts, local)

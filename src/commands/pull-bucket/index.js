@@ -76,7 +76,8 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     if (info.Size) {
       if (force || !(await skipItems.skipItem(db, info.url, checkHead))) {
         inflight.push(info.Key)
-        await parseFile(tableName, blockBucket, info.url, info.Bucket, info.Size, local, limits)
+        const db = require('../../queries')(tableName)
+        await parseFile(db, blockBucket, info.url, info.Bucket, info.Size, local, limits)
         display.complete += 1
         inflight.splice(inflight.indexOf(info.Key), 1)
         display.processed += info.Size
@@ -127,7 +128,8 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     const urls = Object.keys(files)
     if (urls.length) {
       urls.forEach(url => inflight.push(keyMap[url]))
-      await parseFile.files(tableName, blockBucket, files, opts.Bucket, local)
+      const db = require('../../queries')(tableName)
+      await parseFile.files(db, blockBucket, files, opts.Bucket, local)
       urls.forEach(url => inflight.splice(inflight.indexOf(keyMap[url]), 1))
       display.complete += urls.length
       display.processed += Object.values(files).reduce((x, y) => x + y, 0)
