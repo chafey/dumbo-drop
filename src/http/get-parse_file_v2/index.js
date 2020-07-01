@@ -1,13 +1,11 @@
 // learn more about HTTP functions here: https://arc.codes/primitives/http
 const Block = require('@ipld/block')
-//const fixed = require('fixed-chunker')
-//const limiter = require('./limiter')
-//const createStore = require('./store')
+const fixed = require('fixed-chunker')
+const limiter = require('./limiter')
+const createStore = require('./store')
 const bent = require('bent')
 const get = bent(200, 206)
-//const createStore = require('../../store')
-//const chunkFile = require('../../chunk-file')
-//const limiter = require('../../limiter')
+/*
 const dumboDrop = require('dumbo-drop')
 const createStore = dumboDrop.store
 const chunkFile = dumbDrop.chunkFile
@@ -17,7 +15,7 @@ const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   const store = createStore(Block, blockBucket)
   return chunkFile(store, get, limit, url, headers, retries)
 }
-/*
+*/
 const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   const store = createStore(Block, blockBucket)
   let stream
@@ -45,7 +43,6 @@ const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   }
   return Promise.all(parts)
 }
-*/
 
 exports.handler = async (req) => {
   const blockBucket = req.query.blockBucket
