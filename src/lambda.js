@@ -4,7 +4,7 @@ const awsConfig = require('aws-config')
 const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 
 class LambdaError extends Error {
-  constructor (data, retries) {
+  constructor(data, retries) {
     if (!data) return super(data)
     let msg = data.errorMessage
     msg = `\nLambdaError[${data.errorType}]: ` + data.errorMessage

@@ -3,8 +3,8 @@ const limiter = require('./limiter')
 const chunkFile = require('./chunk-file')
 
 module.exports = {
-    store,
-    limiter,
-    chunkFile
+  store,
+  limiter,
+  chunkFile
 }
 

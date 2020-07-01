@@ -5,9 +5,9 @@ const createLimiter = require('../src/limiter')
 
 describe('limiter', () => {
 
-  const resolver = async (promise) => {return promise} 
+  const resolver = async (promise) => { return promise }
 
-  const isPromise = (promise) => {return promise && promise.then && typeof promise.then === 'function'}
+  const isPromise = (promise) => { return promise && promise.then && typeof promise.then === 'function' }
 
   it('returns promise with wait and next', async () => {
     const limiter = createLimiter(50)
@@ -24,7 +24,7 @@ describe('limiter', () => {
 
   it('adding pending promise returns promise', async () => {
     const limiter = createLimiter(1)
-    const result = limiter(resolver(new Promise(()=>{})))
+    const result = limiter(resolver(new Promise(() => { })))
     assert(isPromise(result))
   })
 
@@ -36,7 +36,7 @@ describe('limiter', () => {
   it('adding pending returns promise', async () => {
     const limiter = createLimiter(1)
     let resolveIt;
-    const promise = new Promise((resolve) => {resolveIt = resolve});
+    const promise = new Promise((resolve) => { resolveIt = resolve });
     const first = limiter(resolver(promise))
     const second = limiter(resolver(Promise.resolve()))
     resolveIt();
@@ -65,7 +65,7 @@ describe('limiter', () => {
   it('next() returns promise', async () => {
     const limiter = createLimiter(1)
     let resolveIt;
-    const promise = new Promise((resolve) => {resolveIt = resolve});
+    const promise = new Promise((resolve) => { resolveIt = resolve });
     const result = limiter.next()
     assert(isPromise(result))
   })
@@ -73,7 +73,7 @@ describe('limiter', () => {
   it('next() resolves', async () => {
     const limiter = createLimiter(1)
     let resolveIt;
-    const promise = new Promise((resolve) => {resolveIt = resolve});
+    const promise = new Promise((resolve) => { resolveIt = resolve });
     const result = limiter.next()
     assert(isPromise(result))
     resolveIt()

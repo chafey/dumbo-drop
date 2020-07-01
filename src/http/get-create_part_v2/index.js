@@ -31,7 +31,7 @@ exports.handler = async (req) => {
     throw new Error('Missing required arguments')
   }
   const { files } = req.query
-  const ret = { }
+  const ret = {}
   const urls = {}
   const roots = []
   const dagBlocks = []

@@ -30,7 +30,7 @@ const run = async argv => {
   const limit = limiter(10)
   const { bucket } = argv
   const allocator = { size: 0, entries: 0, splitSize: 0 }
-  const carParts = { }
+  const carParts = {}
   const carPartUrls = {}
   let partUrls = 0
   let expectedSplitSize = 0

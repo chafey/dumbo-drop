@@ -53,8 +53,8 @@ const ls = db => {
 }
 
 // iterator function that returns an array of files or file slices
-// to be aggregated together into a single car file.  
-const getItemsForCARFile = async function * (db) {
+// to be aggregated together into a single car file.
+const getItemsForCARFile = async function* (db) {
   for await (const { url, size } of ls(db)) {
     if (size > limits.MAX_CAR_FILE_SIZE) throw new Error('Part slice too large')
     // for files or file slices of carfile maxsize, encode it into a single car file
@@ -91,9 +91,9 @@ const getItemsForCARFile = async function * (db) {
     }
     if (!allocated) allocations.push([size, [url]])
   }
-  // iteration complete, return the list of file parts/slices 
+  // iteration complete, return the list of file parts/slices
   // to be encoded into the last car file
-  yield * allocations
+  yield* allocations
 }
 
 let updateMutex = null

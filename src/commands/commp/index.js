@@ -54,13 +54,13 @@ const commp = async (bucket, key) => {
   return commP
 }
 
-const getCarParts = async function * (Bucket) {
+const getCarParts = async function* (Bucket) {
   const opts = { Bucket }
   let data
   do {
     const s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })
     data = await s3.listObjectsV2(opts).promise()
-    yield * data.Contents
+    yield* data.Contents
     if (!data.Contents.length) {
       return
     }

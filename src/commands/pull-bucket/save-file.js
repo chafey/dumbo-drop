@@ -34,12 +34,12 @@ const saveSplits = async (db, url, dataset, splits, size, limits) => {
   const writeResponses = await Promise.all(writes)
   const item = { url, size: originalSize, dataset, split: true }
   const resp = await putItem(db, item)
-  const result = [resp, ...writeResponses] 
+  const result = [resp, ...writeResponses]
   return result
 }
 
 module.exports = {
-    saveFile,
-    saveSplits,
-    debug : putItem.debug
+  saveFile,
+  saveSplits,
+  debug: putItem.debug
 }

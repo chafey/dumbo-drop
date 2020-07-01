@@ -156,7 +156,7 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
       await limit(runBulk(bulk))
       await sleep(500)
       bulk = []
-    } 
+    }
     bulk.push(fileInfo)
   }
   await limit(runBulk(bulk))
