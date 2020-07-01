@@ -112,7 +112,7 @@ describe('chunk-file', () => {
         assert(result[0].toString() === "bafkreidiy3afvp5t7j27n4lvhnend6ca7jpd23jnexnuuhwklirg7762d4")
     })
 
-    it('fails', async () => {
+    it('fails on too many retries', async () => {
         const store = makeMockStore()
         const limit = createLimiter(100)
         const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR"
@@ -125,6 +125,18 @@ describe('chunk-file', () => {
         })
     })
 
+    it('fails on too many retries', async () => {
+        const store = makeMockStore()
+        const limit = createLimiter(100)
+        const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR"
+        const headers = undefined
+        const mockGet400 = async (url, headers) => Promise.reject(new StatusError({statusCode: 400}))
 
-
+        chunkFile(store, mockGet400, limit, url, headers)
+        .then(() => {assert(0 && "should not happen")})
+        .catch((err) => {
+            assert(err)
+            assert(err.statusCode === 400)
+        })
+    })
 })

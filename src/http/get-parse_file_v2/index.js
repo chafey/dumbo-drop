@@ -5,6 +5,12 @@ const bent = require('bent')
 const get = bent(200, 206)
 const createStore = require('./store')
 const limiter = require('./limiter')
+//const dumboDrop = require('lambda')
+
+/*const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
+  const store = createStore(Block, blockBucket)
+  return dumboDrop.chunkFile(store, get, limit, url, headers, retries)
+}*/
 
 const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   const store = createStore(Block, blockBucket)
