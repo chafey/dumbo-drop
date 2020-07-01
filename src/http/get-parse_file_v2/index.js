@@ -1,47 +1,16 @@
 // learn more about HTTP functions here: https://arc.codes/primitives/http
 const Block = require('@ipld/block')
-const fixed = require('fixed-chunker')
-const limiter = require('./limiter')
-const createStore = require('./store')
 const bent = require('bent')
 const get = bent(200, 206)
-/*
+
 const dumboDrop = require('dumbo-drop')
 const createStore = dumboDrop.store
-const chunkFile = dumbDrop.chunkFile
+const chunkFile = dumboDrop.chunkFile
 const limiter = dumboDrop.limiter
 
 const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   const store = createStore(Block, blockBucket)
   return chunkFile(store, get, limit, url, headers, retries)
-}
-*/
-const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
-  const store = createStore(Block, blockBucket)
-  let stream
-  // get a read stream for this file
-  try {
-    stream = await get(url, null, headers)
-  } catch (e) {
-    // retry parsing if we get an HTTP 400 Error Code (BAD REQUEST)
-    if (e.statusCode > 400) {
-      if (!retries) {
-        throw new Error(`Unacceptable error code: ${e.statusCode} for ${url}`)
-      }
-      return parseFile(blockBucket, limit, url, null, retries - 1)
-    } else {
-      throw e
-    }
-  }
-  const parts = []
-  // chunk the file into 1MB buffers, encode them as IPLD blocks
-  // and store in S3
-  for await (const chunk of fixed(stream, 1024 * 1024)) {
-    const block = Block.encoder(chunk, 'raw')
-    await limit(store.put(block))
-    if (chunk.length) parts.push(block.cid())
-  }
-  return Promise.all(parts)
 }
 
 exports.handler = async (req) => {
