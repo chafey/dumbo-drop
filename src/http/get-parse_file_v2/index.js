@@ -5,10 +5,13 @@ const Block = require('@ipld/block')
 //const createStore = require('./store')
 const bent = require('bent')
 const get = bent(200, 206)
-//const dumboDrop = require('dumbo-drop')
-const createStore = require('../../store')
-const chunkFile = require('../../chunk-file')
-const limiter = require('../../limiter')
+//const createStore = require('../../store')
+//const chunkFile = require('../../chunk-file')
+//const limiter = require('../../limiter')
+const dumboDrop = require('dumbo-drop')
+const createStore = dumboDrop.store
+const chunkFile = dumbDrop.chunkFile
+const limiter = dumboDrop.limiter
 
 const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
   const store = createStore(Block, blockBucket)
