@@ -4,14 +4,14 @@ const logUpdate = require('log-update')
 
 let interval
 
-const start = (display, inflight) => {
+const start = (appState) => {
   const sizes = []
   interval = setInterval(() => {
-    const outs = { ...display }
+    const outs = { ...appState.display }
     sizes.push(outs.processed)
     if (sizes.length > 500000) sizes.shift()
     while (sizes.length && sizes[0] === 0) sizes.shift()
-    outs.inflight = inflight.length
+    outs.inflight = appState.inflight.length
     outs.skippedBytes = prettyBytes(outs.skippedBytes)
     outs.processed = prettyBytes(outs.processed)
     outs.pendingWrites = parseFile.debug.pending
@@ -21,7 +21,7 @@ const start = (display, inflight) => {
       persec = (sizes[sizes.length - 1] - sizes[0]) / sizes.length
       outs.perf = prettyBytes(persec) + ' per second'
     }
-    outs.oldest = inflight[0]
+    outs.oldest = appState.inflight[0]
     logUpdate(JSON.stringify(outs, null, 2))
   }, 1000)
 }

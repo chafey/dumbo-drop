@@ -12,7 +12,6 @@ const parseFile = async (db, blockBucket, url, dataset, size, local, limits) => 
   let parts = []
   if (size < limits.MAX_CAR_FILE_SIZE) {
     parts = await executeParseFile.executeParseFile(opts, local)
-    console.log('parts=', parts)
     const resp = await saveFile.saveFile(db, url, dataset, parts, size)
     return resp
   } else {
@@ -21,7 +20,6 @@ const parseFile = async (db, blockBucket, url, dataset, size, local, limits) => 
     while (i < size) {
       opts = { url, headers: { Range: `bytes=${i}-${(i + limits.MAX_CAR_FILE_SIZE) - 1}` }, blockBucket }
       const chunks = await executeParseFile.executeParseFile(opts, local)
-      console.log('chunks=', chunks)
       splits.push(chunks)
       i += limits.MAX_CAR_FILE_SIZE
     }
