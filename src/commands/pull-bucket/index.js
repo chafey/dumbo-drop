@@ -15,6 +15,9 @@ const run = async (settings) => {
   const Prefix = settings.prefix
   const StartAfter = settings.startAfter
 
+  console.log(limits)
+  console.log(settings)
+
   const opts = {
     Bucket,
     Prefix,
@@ -31,9 +34,6 @@ const run = async (settings) => {
 
     display: { Bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }
   }
-
-  const display = appState.display
-  const inflight = appState.inflight
 
   await stateFlusher.start(Bucket, appState)
   if (StartAfter) StartAfter = StartAfter.slice(0, StartAfter.length - 2)
@@ -54,7 +54,7 @@ const run = async (settings) => {
     if (!fileInfo.Size) continue
     fileInfo = { ...fileInfo, ...opts }
 
-    fileInfo.url = getURL(fileInfo)
+    fileInfo.url = getURL(fileInfo.Key, settings.bucket)
     appState.latest = fileInfo.Key
 
     // Bulking is fixes to either 1GB (to avoid Lambda timeout)
@@ -77,7 +77,6 @@ const run = async (settings) => {
   await limit.wait()
   progress.stop()
   stateFlusher.stop()
-  return display
 }
 
 module.exports = run

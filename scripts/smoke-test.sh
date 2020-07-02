@@ -1,15 +1,17 @@
 #!/bin/bash
+
+export DUMBO_DROP_SMOKE_TEST=1
 scripts/reset.sh
 scripts/parsebucket.sh
 scripts/createparts.sh
 
-if curl --output /dev/null --silent --head --fail https://dumbo-v2-cars-chafey-dumbo-drop-test.s3-us-west-2.amazonaws.com/bafyreibspq2gevryu62m73u5cuxbxtpomysipap5v7byxoma5kmqqckh7y/bafyreibspq2gevryu62m73u5cuxbxtpomysipap5v7byxoma5kmqqckh7y.car; then
-  echo "SUCCESS! CAR FILE FOUND"
-else
-    if curl --output /dev/null --silent --head --fail https://dumbo-v2-cars-chafey-dumbo-drop-test.s3-us-west-2.amazonaws.com/bafyreihzmxur34jpn6y7i3cois3qiyu4qa7wsygcjxu2gdgi2pnpzc54o4/bafyreihzmxur34jpn6y7i3cois3qiyu4qa7wsygcjxu2gdgi2pnpzc54o4.car; then
-        echo "SUCCESS! CAR FILE FOUND"
+if curl --output /dev/null --silent --head --fail https://dumbo-v2-cars-chafey-dumbo-drop-test.s3-us-west-2.amazonaws.com/bafyreidigczbx3d3fbpabihjh3lmeoppdlriaipuityslbl4kgaud6bkci/bafyreidigczbx3d3fbpabihjh3lmeoppdlriaipuityslbl4kgaud6bkci.car; then
+    if curl --output /dev/null --silent --head --fail https://dumbo-v2-cars-chafey-dumbo-drop-test.s3-us-west-2.amazonaws.com/bafyreifx6dt7edanljy7p3iqw6idsjzyepnwohbkmhnzrhjtdhxljioqdm/bafyreifx6dt7edanljy7p3iqw6idsjzyepnwohbkmhnzrhjtdhxljioqdm.car; then
+        echo "SUCCESS! CAR FILES FOUND"
     else
-        echo "FAILURE! CAR FILE NOT FOUND"
+        echo "FAILURE! CAR FILES NOT FOUND"
     fi
+else
+    echo "FAILURE! CAR FILES NOT FOUND"
 fi
 

@@ -2,11 +2,11 @@ const AWS = require('aws-sdk')
 
 const awsRegion = new AWS.Config().region;
 
-const getURL = fileInfo => {
-  if (fileInfo.Bucket.includes('.')) {
-    return `https://s3.amazonaws.com/${fileInfo.Bucket}/${AWS.util.uriEscapePath(fileInfo.Key)}`
+const getURL = (key, bucket) => {
+  if (bucket.includes('.')) {
+    return `https://s3.amazonaws.com/${bucket}/${AWS.util.uriEscapePath(key)}`
   } else {
-    return `https://${fileInfo.Bucket}.s3.${awsRegion}.amazonaws.com/${AWS.util.uriEscapePath(fileInfo.Key)}`
+    return `https://${bucket}.s3.${awsRegion}.amazonaws.com/${AWS.util.uriEscapePath(key)}`
   }
 }
 
