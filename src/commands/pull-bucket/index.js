@@ -50,7 +50,7 @@ const run = async (settings) => {
   const bulkLength = () => bulk.reduce((x, y) => x + y.Size, 0)
 
   // get list of files from bucket and parse them through the limiter
-  for await (let fileInfo of listFiles.ls(opts)) {
+  for await (let fileInfo of listFiles.ls(settings)) {
     if (!fileInfo.Size) continue
     fileInfo = { ...fileInfo, ...opts }
 
