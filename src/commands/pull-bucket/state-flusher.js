@@ -33,11 +33,10 @@ const start = async (appState, settings) => {
   }
   saveStateIntervalId = setInterval(async () => {
     await saveState()
-  }, settings.saveStateIntervalMS)
+  }, settings.internal.saveStateIntervalMS)
 
   return state.startAfter
 }
-
 
 const stop = () => {
   clearInterval(saveStateIntervalId)

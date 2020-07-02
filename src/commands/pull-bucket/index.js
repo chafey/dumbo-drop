@@ -11,21 +11,23 @@ const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 
 // main entrypoint for parsing a bucket
 const run = async (settings) => {
-  const StartAfter = settings.startAfter
-
   console.log(limits)
   console.log(settings)
-
-  const limit = limiter(settings.concurrency)
 
   const appState = {
     // the most recent S3 url we are parseing.  This is written out to the state
     // file so we can continue from this point in case the app crashes
     latest: undefined,
-    // list of S3 URLs currently being parsed/chunked
+    // list of S3 URLs currently being parsed/chunked.
     inflight: [],
 
-    display: { Bucket: settings.bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }
+    // display contains various statistics we display to the user while  processing
+    display: {
+      skipped: 0, // number of files skipped
+      skippedBytes: 0, // number of bytes skipped (from skipped files)
+      complete: 0, // number of files processed
+      processed: 0 // number of bytes processed (from files processed)
+    }
   }
 
   let startAfter = await stateFlusher.start(appState, settings)
@@ -33,13 +35,13 @@ const run = async (settings) => {
 
   // TODO: check for table and create if missing
   const tableName = `dumbo-v2-${settings.bucket}`
-
   const db = require('../../queries')(tableName)
 
   // start out progress display
-  progress.start(appState)
+  progress.start(appState, settings)
 
   let bulk = []
+  const limit = limiter(settings.concurrency)
   const bulkLength = () => bulk.reduce((x, y) => x + y.Size, 0)
 
   // get list of files from bucket and parse them through the limiter
@@ -68,9 +70,8 @@ const run = async (settings) => {
   }
   await limit(runBulk(db, bulk, settings, appState))
   await limit.wait()
-  progress.stop()
+  progress.stop(appState, settings)
   stateFlusher.stop()
 }
 
 module.exports = run
-module.exports.getURL = getURL
