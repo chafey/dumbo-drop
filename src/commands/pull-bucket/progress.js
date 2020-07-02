@@ -27,6 +27,8 @@ const print = (appState, settings) => {
 }
 
 const start = (appState, settings) => {
+  print(appState, settings)
+
   interval = setInterval(() => {
     print(appState, settings)
   }, settings.internal.progressIntervalMS)

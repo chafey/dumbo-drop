@@ -21,7 +21,7 @@ const run = async (settings) => {
 
   // setup a timer to periodically save our current processing state so we can resume
   // if something goes wrong
-  await stateFlusher.start(appState, settings.bucket, settings.internal.saveStateIntervalMS)
+  stateFlusher.start(appState, settings.bucket, settings.internal.saveStateIntervalMS)
 
   // start out progress display
   progress.start(appState, settings)

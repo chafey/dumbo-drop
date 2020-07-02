@@ -7,6 +7,8 @@ let saveStateIntervalId
 // state every <saveStateIntervalMS> so we can resume processing
 // if it is interrupted (crash or user cancelled)
 const start = async (appState, bucket, saveStateIntervalMS) => {
+  stateFile.save(appState, bucket)
+
   saveStateIntervalId = setInterval(async () => {
     await stateFile.save(appState, bucket)
   }, saveStateIntervalMS)
