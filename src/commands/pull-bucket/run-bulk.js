@@ -3,7 +3,6 @@ const parseFile = require('./parse-file')
 
 // function to parse multiple files at once
 const runBulk = async (db, _bulk, settings, appState) => {
-  const blockBucket = process.env.DUMBO_BLOCK_STORE
   const files = {}
   const keyMap = {}
   _bulk = _bulk.map(info => {
@@ -21,9 +20,8 @@ const runBulk = async (db, _bulk, settings, appState) => {
   const urls = Object.keys(files)
   if (urls.length) {
     urls.forEach(url => appState.inflight.push(keyMap[url]))
-    const tableName = `dumbo-v2-${settings.bucket}`
-    const db = require('../../queries')(tableName)
-    await parseFile.files(db, blockBucket, files, settings.bucket, settings.local)
+    const db = require('../../queries')(settings.tableName)
+    await parseFile.files(db, settings.blockBucket, files, settings.bucket, settings.local)
     urls.forEach(url => appState.inflight.splice(appState.inflight.indexOf(keyMap[url]), 1))
     appState.display.complete += urls.length
     appState.display.processed += Object.values(files).reduce((x, y) => x + y, 0)

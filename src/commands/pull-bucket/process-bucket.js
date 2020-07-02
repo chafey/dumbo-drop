@@ -9,9 +9,7 @@ const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 
 // get list of files from bucket and parse them through the limiter
 const processBucket = async (startAfter, appState, settings) => {
-  // TODO: check for table and create if missing
-  const tableName = `dumbo-v2-${settings.bucket}`
-  const db = require('../../queries')(tableName)
+  const db = require('../../queries')(settings.tableName)
   let bulk = []
 
   const limit = limiter(settings.concurrency)
