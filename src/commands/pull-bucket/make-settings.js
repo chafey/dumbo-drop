@@ -10,8 +10,8 @@ const makeSettings = (argv) => {
     // internal settings (not configurable via cli)
     internal: {
       // how frequently the processing state should be saved
-      //saveStateIntervalMS: 10000,
-      saveStateIntervalMS: 100,
+      saveStateIntervalMS: 10000,
+      //saveStateIntervalMS: 100,
       // how frequently the progress is updated
       progressIntervalMS: 1000
     }

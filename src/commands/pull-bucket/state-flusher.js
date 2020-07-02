@@ -3,12 +3,16 @@ const stateFile = require('./state-file')
 
 let saveStateIntervalId
 
-const start = async (appState, settings) => {
+// starts the state flusher which will flush the processing
+// state every <saveStateIntervalMS> so we can resume processing
+// if it is interrupted (crash or user cancelled)
+const start = async (appState, bucket, saveStateIntervalMS) => {
   saveStateIntervalId = setInterval(async () => {
-    await stateFile.save(appState, settings)
-  }, settings.internal.saveStateIntervalMS)
+    await stateFile.save(appState, bucket)
+  }, saveStateIntervalMS)
 }
 
+// stops the state flusher
 const stop = () => {
   clearInterval(saveStateIntervalId)
 }

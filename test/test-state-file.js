@@ -15,8 +15,8 @@ describe('state-file', () => {
       readPath = path
       throw new Error("simulated error")
     }
-    const settings = { bucket: 'test-bucket' }
-    const result = await stateFile.load(settings, mockReadFile)
+    const bucket = 'test-bucket'
+    const result = await stateFile.load(bucket, mockReadFile)
     assert.equal(result, null)
     assert.equal(readPath, '.state-test-bucket')
   })
@@ -27,8 +27,8 @@ describe('state-file', () => {
       readPath = path
       return Buffer.from("")
     }
-    const settings = { bucket: 'test-bucket' }
-    const result = await stateFile.load(settings, mockReadFile)
+    const bucket = 'test-bucket'
+    const result = await stateFile.load(bucket, mockReadFile)
     assert.equal(result, null)
     assert.equal(readPath, '.state-test-bucket')
   })
@@ -39,8 +39,8 @@ describe('state-file', () => {
       readPath = path
       return Buffer.from(JSON.stringify({ completed: 100, startAfter: "TEST_FILE_NAME" }))
     }
-    const settings = { bucket: 'test-bucket' }
-    const result = await stateFile.load(settings, mockReadFile)
+    const bucket = 'test-bucket'
+    const result = await stateFile.load(bucket, mockReadFile)
     assert.equal(readPath, '.state-test-bucket')
     assert(result)
     assert.equal(result.completed, 100)
@@ -55,7 +55,7 @@ describe('state-file', () => {
       writeData = data
     }
 
-    const settings = { bucket: 'test-bucket' }
+    const bucket = 'test-bucket'
     const appState = {
       inflight: [],
       latest: undefined,
@@ -65,7 +65,7 @@ describe('state-file', () => {
       }
     }
 
-    await stateFile.save(appState, settings, mockWriteFileSync)
+    await stateFile.save(appState, bucket, mockWriteFileSync)
     assert.equal(writePath, '.state-test-bucket')
     const data = JSON.parse(writeData)
     assert.equal(data.completed, 0)
@@ -80,7 +80,7 @@ describe('state-file', () => {
       writeData = data
     }
 
-    const settings = { bucket: 'test-bucket' }
+    const bucket = 'test-bucket'
     const appState = {
       inflight: [],
       latest: undefined,
@@ -90,7 +90,7 @@ describe('state-file', () => {
       }
     }
 
-    await stateFile.save(appState, settings, mockWriteFileSync)
+    await stateFile.save(appState, bucket, mockWriteFileSync)
     assert.equal(writePath, '.state-test-bucket')
     const data = JSON.parse(writeData)
     assert.equal(data.completed, 1100)
@@ -106,7 +106,7 @@ describe('state-file', () => {
       writeData = data
     }
 
-    const settings = { bucket: 'test-bucket' }
+    const bucket = 'test-bucket'
     const appState = {
       inflight: ["INFLIGHT_FILE_NAME"],
       latest: "TEST_FILE_NAME",
@@ -116,7 +116,7 @@ describe('state-file', () => {
       }
     }
 
-    await stateFile.save(appState, settings, mockWriteFileSync)
+    await stateFile.save(appState, bucket, mockWriteFileSync)
     assert.equal(writePath, '.state-test-bucket')
     const data = JSON.parse(writeData)
     assert.equal(data.completed, 1100)
@@ -131,7 +131,7 @@ describe('state-file', () => {
       writeData = data
     }
 
-    const settings = { bucket: 'test-bucket' }
+    const bucket = 'test-bucket'
     const appState = {
       inflight: [],
       latest: "TEST_FILE_NAME",
@@ -141,7 +141,7 @@ describe('state-file', () => {
       }
     }
 
-    await stateFile.save(appState, settings, mockWriteFileSync)
+    await stateFile.save(appState, bucket, mockWriteFileSync)
     assert.equal(writePath, '.state-test-bucket')
     const data = JSON.parse(writeData)
     assert.equal(data.completed, 1100)
