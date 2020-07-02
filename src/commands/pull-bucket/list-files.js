@@ -2,11 +2,11 @@ const AWS = require('aws-sdk')
 const awsConfig = require('aws-config')
 
 // returns list of files in bucket
-const ls = async function* (settings, s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })) {
+const ls = async function* (settings, startAfter, s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })) {
   const opts = {
     Bucket: settings.bucket,
     Prefix: settings.prefix,
-    StartAfter: settings.startAfter
+    StartAfter: startAfter
   }
   let data
   do {

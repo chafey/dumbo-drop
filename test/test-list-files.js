@@ -33,11 +33,11 @@ describe('list-files', () => {
     const s3 = makeMockS3(responses)
     const settings = {
       bucket: "chafey-dumbo-drop-test",
-      prefix: "",
-      startAfter: ""
+      prefix: undefined
     }
     const fileInfos = []
-    for await (let fileInfo of listFiles.ls(settings, s3)) {
+    const startAfter = undefined
+    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 0)
@@ -59,11 +59,11 @@ describe('list-files', () => {
     const s3 = makeMockS3(responses)
     const settings = {
       bucket: "chafey-dumbo-drop-test",
-      prefix: "",
-      startAfter: "CT1_J2KR"
+      prefix: undefined
     }
     const fileInfos = []
-    for await (let fileInfo of listFiles.ls(settings, s3)) {
+    const startAfter = "CT1_J2KR"
+    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 1)
@@ -90,11 +90,11 @@ describe('list-files', () => {
     const s3 = makeMockS3(responses)
     const settings = {
       bucket: "chafey-dumbo-drop-test",
-      prefix: "",
-      startAfter: "CT1_J2KR"
+      prefix: undefined
     }
     const fileInfos = []
-    for await (let fileInfo of listFiles.ls(settings, s3)) {
+    const startAfter = "CT1_J2KR"
+    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 2)
@@ -119,11 +119,11 @@ describe('list-files', () => {
     const s3 = makeMockS3(responses)
     const settings = {
       bucket: "chafey-dumbo-drop-test",
-      prefix: "",
-      startAfter: "CT1_J2KR"
+      prefix: undefined
     }
     const fileInfos = []
-    for await (let fileInfo of listFiles.ls(settings, s3)) {
+    const startAfter = "CT1_J2KR"
+    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 2)
@@ -138,12 +138,12 @@ describe('list-files', () => {
     }
     const settings = {
       bucket: "chafey-dumbo-drop-test",
-      prefix: "",
-      startAfter: "CT1_J2KR"
+      prefix: undefined
     }
+    const startAfter = "CT1_J2KR"
 
     try {
-      for await (let fileInfo of listFiles.ls(settings, s3)) {
+      for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
         console.log(fileInfo)
       }
       assert(0 && "should not get here")

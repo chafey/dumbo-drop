@@ -9,7 +9,7 @@ const runFile = async (db, info, limits, settings, appState) => {
     if (settings.force || !(await skipItems.skipItem(db, info.url, settings.checkHead))) {
       appState.inflight.push(info.Key)
       const db = require('../../queries')(tableName)
-      await parseFile(db, blockBucket, info.url, info.Bucket, info.Size, settings.local, limits)
+      await parseFile(db, blockBucket, info.url, settings.bucket, info.Size, settings.local, limits)
       appState.display.complete += 1
       appState.inflight.splice(appState.inflight.indexOf(info.Key), 1)
       appState.display.processed += info.Size

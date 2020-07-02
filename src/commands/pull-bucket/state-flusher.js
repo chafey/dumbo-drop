@@ -2,10 +2,10 @@
 let saveStateIntervalId
 let state
 
-const start = async (Bucket, appState) => {
+const start = async (appState, settings) => {
   // if we have a state file, read it and resume processing from that point.  If no state
   // file initialize it to start a fresh run
-  const stateFile = `.state-${Bucket}`
+  const stateFile = `.state-${settings.bucket}`
   const loadState = async () => {
     let f
     try {
@@ -17,7 +17,6 @@ const start = async (Bucket, appState) => {
   }
   state = await loadState(stateFile)
   if (state && state.startAfter) {
-    opts.StartAfter = state.startAfter
     appState.display.skippedBytes = state.completed
   } else {
     state = { completed: 0 }
@@ -34,7 +33,9 @@ const start = async (Bucket, appState) => {
   }
   saveStateIntervalId = setInterval(async () => {
     await saveState()
-  }, 10000)
+  }, settings.saveStateIntervalMS)
+
+  return state.startAfter
 }
 
 
