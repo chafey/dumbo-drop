@@ -1,4 +1,8 @@
 #!/bin/sh
+
+#clear state files
+rm -f .state*
+
 # clear dynamodb
 aws dynamodb delete-item \
     --table-name dumbo-v2-chafey-dumbo-drop-test \

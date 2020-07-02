@@ -1,23 +1,15 @@
-const limiter = require('../../limiter')
-const listFiles = require('./list-files')
 const limits = require('../../limits')
-const runBulk = require('./run-bulk')
 const progress = require('./progress')
 const stateFlusher = require('./state-flusher')
-const runFile = require('./run-file')
-const getURL = require('./get-url')
+const processBucket = require('./process-bucket')
+const stateFile = require('./state-file')
 
-const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
-
-// main entrypoint for parsing a bucket
-const run = async (settings) => {
-  console.log(limits)
-  console.log(settings)
-
-  const appState = {
+const getDefaultAppState = () => {
+  return {
     // the most recent S3 url we are parseing.  This is written out to the state
     // file so we can continue from this point in case the app crashes
     latest: undefined,
+
     // list of S3 URLs currently being parsed/chunked.
     inflight: [],
 
@@ -29,47 +21,48 @@ const run = async (settings) => {
       processed: 0 // number of bytes processed (from files processed)
     }
   }
+}
 
-  let startAfter = await stateFlusher.start(appState, settings)
-  if (startAfter) startAfter = startAfter.slice(0, startAfter.length - 2)
+const restoreAppState = (previousState, appState, state) => {
+  console.log('prior state found, restoring')
+  // if we have a state file from a previous run of this bucket, initialize our
+  // internal state with it.  if not, initialize state for fresh run
+  appState.display.skippedBytes = previousState.completed
+  if (previousState.startAfter) {
+    const startAfter = previousState.startAfter.slice(0, previousState.startAfter.length - 2)
+    return startAfter
+  }
+}
 
-  // TODO: check for table and create if missing
-  const tableName = `dumbo-v2-${settings.bucket}`
-  const db = require('../../queries')(tableName)
+// main entrypoint for parsing a bucket
+const run = async (settings) => {
+  console.log(limits)
+  console.log(settings)
+
+  // Create default application state
+  const appState = getDefaultAppState()
+
+  // check to see if there is prior processing state for this bucket
+  // and if so - restore it and get the S3 filename to start processing
+  // from
+  let previousState = await stateFile.load(settings)
+  console.log('previousState = ', previousState)
+  let startAfter
+  if (previousState) {
+    startAfter = restoreAppState(previousState, appState, settings)
+  }
+
+  // setup a timer to periodically save our current processing state so we can resume
+  // if something goes wrong
+  await stateFlusher.start(appState, settings)
 
   // start out progress display
   progress.start(appState, settings)
 
-  let bulk = []
-  const limit = limiter(settings.concurrency)
-  const bulkLength = () => bulk.reduce((x, y) => x + y.Size, 0)
+  // process the bucket..
+  await processBucket(startAfter, appState, settings)
 
-  // get list of files from bucket and parse them through the limiter
-  for await (let fileInfo of listFiles.ls(settings, startAfter)) {
-    if (!fileInfo.Size) continue
-    fileInfo = { ...fileInfo }
-
-    fileInfo.url = getURL(fileInfo.Key, settings.bucket)
-    appState.latest = fileInfo.Key
-
-    // Bulking is fixes to either 1GB (to avoid Lambda timeout)
-    // or to 100 entries since that is the batchGetItem limit anyway.
-    // I ran a small test w/ 500 in the bulk set and parallel getItem
-    // requests but it didn't make any difference.
-
-    if (fileInfo.Size > limits.MAX_CAR_FILE_SIZE) {
-      await limit(runFile(db, fileInfo, limits, settings, appState))
-      await sleep(500)
-      continue
-    } else if (((bulkLength() + fileInfo.Size) > limits.MAX_CAR_FILE_SIZE) || bulk.length > 99) {
-      await limit(runBulk(db, bulk, settings, appState))
-      await sleep(500)
-      bulk = []
-    }
-    bulk.push(fileInfo)
-  }
-  await limit(runBulk(db, bulk, settings, appState))
-  await limit.wait()
+  // done processing the bucket, stop our progress and state flusher
   progress.stop(appState, settings)
   stateFlusher.stop()
 }
