@@ -106,7 +106,6 @@ describe('chunk-file', () => {
     const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR"
     const headers = undefined
     const result = await chunkFile(store, get, limit, url, headers)
-    //console.log(result)
     assert(store.blocks.length === 1)
     assert(result.length === 1)
     assert(result[0].toString() === "bafkreidiy3afvp5t7j27n4lvhnend6ca7jpd23jnexnuuhwklirg7762d4")

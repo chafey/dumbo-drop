@@ -8,9 +8,10 @@ const runPullBucketV2 = async argv => {
   const settings = makeSettings(argv)
   await parseBucketV2(settings)
   console.log('all done :)')
-  //console.log(process._getActiveHandles().length) // WriteStream x2, TLSSocket to dynamodb.us-west-2.amazonaws.com
-  //console.log(process._getActiveRequests().length)
-  process.exit(0) // HACK: force process to exit because it takes ~10 seconds to exit
+  // for smoke test, exit immediately because it takes ~10 seconds otherwise (some kind of AWS-SDK related thing)
+  if (process.env.DUMBO_DROP_SMOKE_TEST) {
+    process.exit(0)
+  }
 }
 
 const bucketOptions = yargs => {

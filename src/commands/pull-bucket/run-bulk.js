@@ -2,7 +2,7 @@ const skipItems = require('./skip-items')
 const parseFile = require('./parse-file')
 
 // function to parse multiple files at once
-const runBulk = async (db, _bulk, settings, appState) => {
+const runBulk = async (db, _bulk, appState, settings) => {
   const files = {}
   const keyMap = {}
   _bulk = _bulk.map(info => {
@@ -21,7 +21,7 @@ const runBulk = async (db, _bulk, settings, appState) => {
   if (urls.length) {
     urls.forEach(url => appState.inflight.push(keyMap[url]))
     const db = require('../../queries')(settings.tableName)
-    await parseFile.files(db, settings.blockBucket, files, settings.bucket, settings.local)
+    await parseFile.parseFiles(db, files, settings)
     urls.forEach(url => appState.inflight.splice(appState.inflight.indexOf(keyMap[url]), 1))
     appState.display.complete += urls.length
     appState.display.processed += Object.values(files).reduce((x, y) => x + y, 0)

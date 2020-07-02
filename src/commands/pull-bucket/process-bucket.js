@@ -28,17 +28,17 @@ const processBucket = async (startAfter, appState, settings) => {
     // requests but it didn't make any difference.
 
     if (fileInfo.Size > limits.MAX_CAR_FILE_SIZE) {
-      await limit(runFile(db, fileInfo, limits, settings, appState))
+      await limit(runFile(db, fileInfo, appState, settings, limits))
       await sleep(500)
       continue
     } else if (((bulkLength() + fileInfo.Size) > limits.MAX_CAR_FILE_SIZE) || bulk.length > 99) {
-      await limit(runBulk(db, bulk, settings, appState))
+      await limit(runBulk(db, bulk, appState, settings))
       await sleep(500)
       bulk = []
     }
     bulk.push(fileInfo)
   }
-  await limit(runBulk(db, bulk, settings, appState))
+  await limit(runBulk(db, bulk, appState, settings))
   await limit.wait()
 }
 

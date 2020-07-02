@@ -6,9 +6,9 @@ let interval
 
 const sizes = []
 
-const print = (appState, settings) => {
+const print = (appState, bucket) => {
   const outs = { ...appState.display }
-  outs.Bucket = settings.bucket
+  outs.Bucket = bucket
   sizes.push(outs.processed)
   if (sizes.length > 500000) sizes.shift()
   while (sizes.length && sizes[0] === 0) sizes.shift()
@@ -26,17 +26,17 @@ const print = (appState, settings) => {
   logUpdate(JSON.stringify(outs, null, 2))
 }
 
-const start = (appState, settings) => {
-  print(appState, settings)
+const start = (appState, bucket, progressIntervalMS) => {
+  print(appState, bucket)
 
   interval = setInterval(() => {
-    print(appState, settings)
-  }, settings.internal.progressIntervalMS)
+    print(appState, bucket)
+  }, progressIntervalMS)
 }
 
-const stop = (appState, settings) => {
+const stop = (appState, bucket) => {
   clearInterval(interval)
-  print(appState, settings)
+  print(appState, bucket)
 }
 
 module.exports = {

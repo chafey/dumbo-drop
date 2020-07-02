@@ -144,7 +144,6 @@ describe('list-files', () => {
 
     try {
       for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
-        console.log(fileInfo)
       }
       assert(0 && "should not get here")
     } catch (err) {

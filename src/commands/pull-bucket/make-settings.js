@@ -16,6 +16,8 @@ const makeSettings = (argv) => {
     blockBucket: process.env.DUMBO_BLOCK_STORE,
     // the dynamodb table name to write processed entries to
     tableName: `dumbo-v2-${argv.bucket}`,
+    // the name of the lambda function for parsing files
+    parseFileLambda: process.env.DUMBO_PARSE_FILE_LAMBDA,
     // internal settings (not configurable via cli)
     internal: {
       // how frequently the processing state should be saved

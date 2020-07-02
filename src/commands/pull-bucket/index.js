@@ -25,13 +25,13 @@ const run = async (settings) => {
   stateFlusher.start(appState, settings.bucket, settings.internal.saveStateIntervalMS)
 
   // start out progress display
-  progress.start(appState, settings)
+  progress.start(appState, settings.bucket, settings.internal.progressIntervalMS)
 
   // process the bucket..
   await processBucket(startAfter, appState, settings)
 
   // done processing the bucket, stop our progress and state flusher
-  progress.stop(appState, settings)
+  progress.stop(appState, settings.bucket)
   stateFlusher.stop()
 }
 
