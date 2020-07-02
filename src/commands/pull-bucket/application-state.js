@@ -20,10 +20,11 @@ const getDefault = () => {
 
 // updates the application state given a previous processing state.  If the previous
 // processing state indicates a file was being processed, return it.  otherwise return null
-const restore = (previousState, appState) => {
+const resumeFrom = (previousState, appState) => {
   console.log('previous processing state found, restoring')
   appState.display.skippedBytes = previousState.completed
   if (previousState.startAfter) {
+    // TODO: document why we remove the last 2 characters @mikeal
     const startAfter = previousState.startAfter.slice(0, previousState.startAfter.length - 2)
     return startAfter
   }
@@ -31,5 +32,5 @@ const restore = (previousState, appState) => {
 
 module.exports = {
   getDefault,
-  restore
+  resumeFrom
 }
