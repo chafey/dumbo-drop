@@ -3,9 +3,10 @@ const parseBucketV2 = require('./src/commands/pull-bucket')
 const createPartsV2 = require('./src/commands/create-parts')
 const commp = require('./src/commands/commp')
 const inspect = require('./src/commands/inspect')
-
+const makeSettings = require('./src/commands/pull-bucket/make-settings')
 const runPullBucketV2 = async argv => {
-  await parseBucketV2(argv.bucket, argv.prefix, argv.start, argv.concurrency, argv.checkHead, argv.force, argv.local)
+  const settings = makeSettings(argv)
+  await parseBucketV2(settings)
   console.log('all done :)')
   //console.log(process._getActiveHandles().length) // WriteStream x2, TLSSocket to dynamodb.us-west-2.amazonaws.com
   //console.log(process._getActiveRequests().length)

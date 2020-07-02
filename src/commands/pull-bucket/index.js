@@ -17,8 +17,20 @@ let latest
 const inflight = []
 
 // main entrypoint for parsing a bucket
-const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local = false) => {
-  const opts = { Bucket, Prefix, StartAfter }
+const run = async (settings) => {
+  const Bucket = settings.bucket
+  const Prefix = settings.prefix
+  const StartAfter = settings.startAfter
+  const concurrency = settings.concurrency
+  const checkHead = settings.checkHead
+  const force = settings.force
+  const local = settings.local
+
+  const opts = {
+    Bucket,
+    Prefix,
+    StartAfter
+  }
   const limit = limiter(concurrency)
   const display = { Bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }
 
