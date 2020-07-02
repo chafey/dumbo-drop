@@ -7,7 +7,9 @@ const inspect = require('./src/commands/inspect')
 const runPullBucketV2 = async argv => {
   await parseBucketV2(argv.bucket, argv.prefix, argv.start, argv.concurrency, argv.checkHead, argv.force, argv.local)
   console.log('all done :)')
-  process.exit(0) // HACK: force process to exit because it doesn't right now...
+  //console.log(process._getActiveHandles().length) // WriteStream x2, TLSSocket to dynamodb.us-west-2.amazonaws.com
+  //console.log(process._getActiveRequests().length)
+  process.exit(0) // HACK: force process to exit because it takes ~10 seconds to exit
 }
 
 const bucketOptions = yargs => {

@@ -1,68 +1,28 @@
-const parseFile = require('./parse-file')
-const { readFile } = require('fs').promises
-const { writeFileSync } = require('fs')
 const limiter = require('../../limiter')
-const prettyBytes = require('pretty-bytes')
-const logUpdate = require('log-update')
-const skipItems = require('./skip-items')
 const listFiles = require('./list-files')
-const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 const limits = require('../../limits')
-const AWS = require('aws-sdk')
-const awsRegion = new AWS.Config().region;
+const runBulk = require('./run-bulk')
+const progress = require('./progress')
+const stateFlusher = require('./state-flusher')
+const runFile = require('./run-file')
+const getURL = require('./get-url')
+
+const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
+
+// the most recent S3 url we are parseing.  This is written out to the state
+// file so we can continue from this point in case the app crashes
 let latest
 
-const getURL = fileInfo => {
-  if (fileInfo.Bucket.includes('.')) {
-    return `https://s3.amazonaws.com/${fileInfo.Bucket}/${AWS.util.uriEscapePath(fileInfo.Key)}`
-  } else {
-    return `https://${fileInfo.Bucket}.s3.${awsRegion}.amazonaws.com/${AWS.util.uriEscapePath(fileInfo.Key)}`
-  }
-}
-
+// list of S3 URLs currently being parsed/chunked
 const inflight = []
-const upperLimit = limits.MAX_CAR_FILE_SIZE
 
 // main entrypoint for parsing a bucket
 const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = false, force = false, local = false) => {
   const opts = { Bucket, Prefix, StartAfter }
   const limit = limiter(concurrency)
   const display = { Bucket, skipped: 0, skippedBytes: 0, complete: 0, processed: 0 }
-  const blockBucket = process.env.DUMBO_BLOCK_STORE
 
-  // if we have a state file, read it and resume processing from that point.  If no state
-  // file initialize it to start a fresh run
-  const stateFile = `.state-${Bucket}`
-  const loadState = async () => {
-    let f
-    try {
-      f = await readFile(stateFile)
-    } catch (e) {
-      return null
-    }
-    return JSON.parse(f.toString())
-  }
-  let state = await loadState(stateFile)
-  if (state && state.startAfter) {
-    opts.StartAfter = state.startAfter
-    display.skippedBytes = state.completed
-  } else {
-    state = { completed: 0 }
-  }
-  // setup a timer to periodically save our current processing state so we can resume
-  // if something goes wrong
-  const saveState = async () => {
-    state.startAfter = inflight.length ? inflight[0] : latest || state.startAfter
-    const _state = {
-      completed: display.processed + display.skippedBytes,
-      startAfter: state.startAfter
-    }
-    return writeFileSync(stateFile, Buffer.from(JSON.stringify(_state)))
-  }
-  setInterval(async () => {
-    await saveState()
-  }, 10000)
-
+  await stateFlusher.start(Bucket, display, inflight, latest)
   if (StartAfter) StartAfter = StartAfter.slice(0, StartAfter.length - 2)
 
   // TODO: check for table and create if missing
@@ -70,71 +30,12 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
 
   const db = require('../../queries')(tableName)
 
-  // Function to parse a single file
-  const sizes = []
-  const parse = async info => {
-    if (info.Size) {
-      if (force || !(await skipItems.skipItem(db, info.url, checkHead))) {
-        inflight.push(info.Key)
-        const db = require('../../queries')(tableName)
-        await parseFile(db, blockBucket, info.url, info.Bucket, info.Size, local, limits)
-        display.complete += 1
-        inflight.splice(inflight.indexOf(info.Key), 1)
-        display.processed += info.Size
-      } else {
-        display.skippedBytes += info.Size
-        display.skipped += 1
-      }
-    }
-  }
-  // interval timer to print out processing progress
-  const interval = setInterval(() => {
-    const outs = { ...display }
-    sizes.push(outs.processed)
-    if (sizes.length > 500000) sizes.shift()
-    while (sizes.length && sizes[0] === 0) sizes.shift()
-    outs.inflight = inflight.length
-    outs.skippedBytes = prettyBytes(outs.skippedBytes)
-    outs.processed = prettyBytes(outs.processed)
-    outs.pendingWrites = parseFile.debug.pending
-    outs.writesFreed = parseFile.debug.free
-    let persec
-    if (sizes.length) {
-      persec = (sizes[sizes.length - 1] - sizes[0]) / sizes.length
-      outs.perf = prettyBytes(persec) + ' per second'
-    }
-    outs.oldest = inflight[0]
-    logUpdate(JSON.stringify(outs, null, 2))
-  }, 1000)
+  // start out progress display
+  progress.start(display, inflight)
 
-  // function to parse multiple files at once
   let bulk = []
   const bulkLength = () => bulk.reduce((x, y) => x + y.Size, 0)
-  const runBulk = async _bulk => {
-    const files = {}
-    const keyMap = {}
-    _bulk = _bulk.map(info => {
-      files[info.url] = info.Size
-      keyMap[info.url] = info.Key
-      return info
-    })
-    const found = await skipItems.skipItems(db, Object.keys(files), checkHead, force)
-    for (const url of found) {
-      display.skippedBytes += files[url]
-      delete files[url]
-      display.skipped += 1
-    }
 
-    const urls = Object.keys(files)
-    if (urls.length) {
-      urls.forEach(url => inflight.push(keyMap[url]))
-      const db = require('../../queries')(tableName)
-      await parseFile.files(db, blockBucket, files, opts.Bucket, local)
-      urls.forEach(url => inflight.splice(inflight.indexOf(keyMap[url]), 1))
-      display.complete += urls.length
-      display.processed += Object.values(files).reduce((x, y) => x + y, 0)
-    }
-  }
   // get list of files from bucket and parse them through the limiter
   for await (let fileInfo of listFiles.ls(opts)) {
     if (!fileInfo.Size) continue
@@ -148,20 +49,21 @@ const run = async (Bucket, Prefix, StartAfter, concurrency = 500, checkHead = fa
     // I ran a small test w/ 500 in the bulk set and parallel getItem
     // requests but it didn't make any difference.
 
-    if (fileInfo.Size > upperLimit) {
-      await limit(parse(fileInfo))
+    if (fileInfo.Size > limits.MAX_CAR_FILE_SIZE) {
+      await limit(runFile(fileInfo, checkHead, force, local, limits, opts, display, inflight))
       await sleep(500)
       continue
-    } else if (((bulkLength() + fileInfo.Size) > upperLimit) || bulk.length > 99) {
-      await limit(runBulk(bulk))
+    } else if (((bulkLength() + fileInfo.Size) > limits.MAX_CAR_FILE_SIZE) || bulk.length > 99) {
+      await limit(runBulk(db, bulk, checkHead, force, display, inflight, opts, local))
       await sleep(500)
       bulk = []
     }
     bulk.push(fileInfo)
   }
-  await limit(runBulk(bulk))
+  await limit(runBulk(db, bulk, checkHead, force, display, inflight, opts, local))
   await limit.wait()
-  clearInterval(interval)
+  progress.stop()
+  stateFlusher.stop()
   return display
 }
 
