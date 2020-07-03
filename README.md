@@ -177,3 +177,28 @@ grant full access using the following policy:
     file overhead, unixfs overhead and some padding needed for commp generation
 * DynamoDB is designed for relatively small documents (~10k).  For large files, we get much
   larger than this (400k)      
+
+## Questions for Mikeal
+
+1. db objects (for dynamodb) are created in several places, can we just use one instead?
+2. when a .state file is present, why are the last two characters of the filename returned for "startAfter"
+3. what is the purpose of the getUrl() logic where the path is different if the bucket has a . in it?
+
+# Possible Refactorings/Enhancements
+
+* Replace single file functions with batch functions (parseFile->parseFiles, skipItem->skipItems, 
+  executeParseFile->executeParseFileslambda get-parse_file_v2)
+* autocreate AWS resources
+  * block bucket
+  * dynamoddb table
+  * car bucket
+* Move inflight and display "state" from appState to local state in the run-file/run-bulk files and exported via debug property?
+* Combine runFile with parseFile, runBulk with parseFiles
+* rethink names.  
+  * drop "v2".  
+  * change pull-bucket to "prepare", "chunk" or something like that?
+  * runFile -> processFile, runBulk ->processFiles
+  * parseFile->processFile (combine with runFile), parseFiles->processFiles (combine with runBulk)
+* better handle local vs lambda invocations (execute-parse-file is not clean).  Maybe a file/function for each and
+  select in index.js and pass down?
+* Switch to use commandDir for yargs (moves config out of cli.js into actual commands)

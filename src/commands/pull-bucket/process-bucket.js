@@ -7,6 +7,9 @@ const limits = require('../../limits')
 
 const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
 
+const HALF_SECOND_IN_MS = 500
+const MAX_FILES_PER_BATCH = 99
+
 // get list of files from bucket and parse them through the limiter
 const processBucket = async (startAfter, appState, parameters) => {
   const db = require('../../queries')(parameters.tableName)
@@ -29,11 +32,11 @@ const processBucket = async (startAfter, appState, parameters) => {
 
     if (fileInfo.Size > limits.MAX_CAR_FILE_SIZE) {
       await limit(runFile(db, fileInfo, appState, parameters, limits))
-      await sleep(500)
+      await sleep(HALF_SECOND_IN_MS)
       continue
-    } else if (((bulkLength() + fileInfo.Size) > limits.MAX_CAR_FILE_SIZE) || bulk.length > 99) {
+    } else if (((bulkLength() + fileInfo.Size) > limits.MAX_CAR_FILE_SIZE) || bulk.length > MAX_FILES_PER_BATCH) {
       await limit(runBulk(db, bulk, appState, parameters))
-      await sleep(500)
+      await sleep(HALF_SECOND_IN_MS)
       bulk = []
     }
     bulk.push(fileInfo)

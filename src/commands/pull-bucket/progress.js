@@ -8,7 +8,6 @@ const sizes = []
 
 const ONE_SECOND_IN_MS = 1000
 
-
 const print = (appState, bucket) => {
   const outs = { ...appState.display }
   outs.Bucket = bucket
