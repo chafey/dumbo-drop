@@ -10,10 +10,10 @@ const getDefault = () => {
 
     // display contains various statistics we display to the user while  processing
     display: {
-      skipped: 0, // number of files skipped
+      skippedFiles: 0, // number of files skipped
       skippedBytes: 0, // number of bytes skipped (from skipped files)
-      complete: 0, // number of files processed
-      processed: 0 // number of bytes processed (from files processed)
+      processedFiles: 0, // number of files processed
+      processedBytes: 0 // number of bytes processed (from files processed)
     }
   }
 }

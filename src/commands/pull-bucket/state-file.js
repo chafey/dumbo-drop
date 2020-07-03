@@ -22,7 +22,7 @@ const load = async (bucket, read = readFile) => {
 const save = async (appState, bucket, write = writeFileSync) => {
   const startAfter = appState.inflight.length ? appState.inflight[0] : appState.latest
   const _state = {
-    completed: appState.display.processed + appState.display.skippedBytes,
+    completed: appState.display.processedBytes + appState.display.skippedBytes,
     startAfter: startAfter
   }
   write(getPath(bucket), Buffer.from(JSON.stringify(_state)))

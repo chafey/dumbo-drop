@@ -10,12 +10,12 @@ const runFile = async (db, info, appState, settings, limits) => {
       // create a new one
       const db = require('../../queries')(settings.tableName)
       await parseFile.parseFile(db, info.url, info.Size, limits, settings)
-      appState.display.complete += 1
+      appState.display.processedFiles += 1
       appState.inflight.splice(appState.inflight.indexOf(info.Key), 1)
-      appState.display.processed += info.Size
+      appState.display.processedBytes += info.Size
     } else {
       appState.display.skippedBytes += info.Size
-      appState.display.skipped += 1
+      appState.display.skippedFiles += 1
     }
   }
 }

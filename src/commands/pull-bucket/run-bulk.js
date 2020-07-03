@@ -14,7 +14,7 @@ const runBulk = async (db, _bulk, appState, settings) => {
   for (const url of found) {
     appState.display.skippedBytes += files[url]
     delete files[url]
-    appState.display.skipped += 1
+    appState.display.skippedFiles += 1
   }
 
   const urls = Object.keys(files)
@@ -23,8 +23,8 @@ const runBulk = async (db, _bulk, appState, settings) => {
     const db = require('../../queries')(settings.tableName)
     await parseFile.parseFiles(db, files, settings)
     urls.forEach(url => appState.inflight.splice(appState.inflight.indexOf(keyMap[url]), 1))
-    appState.display.complete += urls.length
-    appState.display.processed += Object.values(files).reduce((x, y) => x + y, 0)
+    appState.display.processedFiles += urls.length
+    appState.display.processedBytes += Object.values(files).reduce((x, y) => x + y, 0)
   }
 }
 

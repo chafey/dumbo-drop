@@ -60,7 +60,7 @@ describe('state-file', () => {
       inflight: [],
       latest: undefined,
       display: {
-        processed: 0,
+        processedBytes: 0,
         skippedBytes: 0
       }
     }
@@ -85,7 +85,7 @@ describe('state-file', () => {
       inflight: [],
       latest: undefined,
       display: {
-        processed: 100,
+        processedBytes: 100,
         skippedBytes: 1000
       }
     }
@@ -111,7 +111,7 @@ describe('state-file', () => {
       inflight: ["INFLIGHT_FILE_NAME"],
       latest: "TEST_FILE_NAME",
       display: {
-        processed: 100,
+        processedBytes: 100,
         skippedBytes: 1000
       }
     }
@@ -136,7 +136,7 @@ describe('state-file', () => {
       inflight: [],
       latest: "TEST_FILE_NAME",
       display: {
-        processed: 100,
+        processedBytes: 100,
         skippedBytes: 1000
       }
     }

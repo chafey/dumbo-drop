@@ -9,12 +9,12 @@ const sizes = []
 const print = (appState, bucket) => {
   const outs = { ...appState.display }
   outs.Bucket = bucket
-  sizes.push(outs.processed)
+  sizes.push(outs.processedBytes)
   if (sizes.length > 500000) sizes.shift()
   while (sizes.length && sizes[0] === 0) sizes.shift()
   outs.inflight = appState.inflight.length
   outs.skippedBytes = prettyBytes(outs.skippedBytes)
-  outs.processed = prettyBytes(outs.processed)
+  outs.processedBytes = prettyBytes(outs.processedBytes)
   outs.pendingWrites = parseFile.debug.pending
   outs.writesFreed = parseFile.debug.free
   let persec
