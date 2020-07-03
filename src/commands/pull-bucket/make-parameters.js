@@ -1,4 +1,4 @@
-const makeSettings = (argv) => {
+const makeParameters = (argv) => {
   return {
     // the source bucket to convert files from
     bucket: argv.bucket,
@@ -29,4 +29,4 @@ const makeSettings = (argv) => {
   }
 }
 
-module.exports = makeSettings
+module.exports = makeParameters

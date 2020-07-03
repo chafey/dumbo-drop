@@ -2,7 +2,7 @@ const skipItems = require('./skip-items')
 const parseFile = require('./parse-file')
 
 // function to parse multiple files at once
-const runBulk = async (db, _bulk, appState, settings) => {
+const runBulk = async (db, _bulk, appState, parameters) => {
   const files = {}
   const keyMap = {}
   _bulk = _bulk.map(info => {
@@ -10,7 +10,7 @@ const runBulk = async (db, _bulk, appState, settings) => {
     keyMap[info.url] = info.Key
     return info
   })
-  const found = await skipItems.skipItems(db, Object.keys(files), settings.checkHead, settings.force)
+  const found = await skipItems.skipItems(db, Object.keys(files), parameters.checkHead, parameters.force)
   for (const url of found) {
     appState.display.skippedBytes += files[url]
     delete files[url]
@@ -20,8 +20,8 @@ const runBulk = async (db, _bulk, appState, settings) => {
   const urls = Object.keys(files)
   if (urls.length) {
     urls.forEach(url => appState.inflight.push(keyMap[url]))
-    const db = require('../../queries')(settings.tableName)
-    await parseFile.parseFiles(db, files, settings)
+    const db = require('../../queries')(parameters.tableName)
+    await parseFile.parseFiles(db, files, parameters)
     urls.forEach(url => appState.inflight.splice(appState.inflight.indexOf(keyMap[url]), 1))
     appState.display.processedFiles += urls.length
     appState.display.processedBytes += Object.values(files).reduce((x, y) => x + y, 0)

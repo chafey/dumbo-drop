@@ -31,13 +31,13 @@ describe('list-files', () => {
   it('ls succeeds with zero responses', async () => {
     const responses = []
     const s3 = makeMockS3(responses)
-    const settings = {
+    const parameters = {
       bucket: "chafey-dumbo-drop-test",
       prefix: undefined
     }
     const fileInfos = []
     const startAfter = undefined
-    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
+    for await (let fileInfo of listFiles.ls(startAfter, parameters, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 0)
@@ -57,13 +57,13 @@ describe('list-files', () => {
       ]
     }]
     const s3 = makeMockS3(responses)
-    const settings = {
+    const parameters = {
       bucket: "chafey-dumbo-drop-test",
       prefix: undefined
     }
     const fileInfos = []
     const startAfter = "CT1_J2KR"
-    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
+    for await (let fileInfo of listFiles.ls(startAfter, parameters, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 1)
@@ -88,13 +88,13 @@ describe('list-files', () => {
       }]
     }]
     const s3 = makeMockS3(responses)
-    const settings = {
+    const parameters = {
       bucket: "chafey-dumbo-drop-test",
       prefix: undefined
     }
     const fileInfos = []
     const startAfter = "CT1_J2KR"
-    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
+    for await (let fileInfo of listFiles.ls(startAfter, parameters, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 2)
@@ -117,13 +117,13 @@ describe('list-files', () => {
       }]
     }]
     const s3 = makeMockS3(responses)
-    const settings = {
+    const parameters = {
       bucket: "chafey-dumbo-drop-test",
       prefix: undefined
     }
     const fileInfos = []
     const startAfter = "CT1_J2KR"
-    for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
+    for await (let fileInfo of listFiles.ls(startAfter, parameters, s3)) {
       fileInfos.push(fileInfo)
     }
     assert(fileInfos.length === 2)
@@ -136,14 +136,14 @@ describe('list-files', () => {
         promise: () => { return Promise.reject(new Error("simulated failure")) }
       }
     }
-    const settings = {
+    const parameters = {
       bucket: "chafey-dumbo-drop-test",
       prefix: undefined
     }
     const startAfter = "CT1_J2KR"
 
     try {
-      for await (let fileInfo of listFiles.ls(settings, startAfter, s3)) {
+      for await (let fileInfo of listFiles.ls(startAfter, parameters, s3)) {
       }
       assert(0 && "should not get here")
     } catch (err) {

@@ -6,19 +6,19 @@ const bent = require('bent')
 const get = bent(200, 206)
 const limiter = require('../../limiter')
 
-const executeParseFile = async (opts, settings) => {
-  if (settings.local) {
+const executeParseFile = async (opts, parameters) => {
+  if (parameters.local) {
     const store = createStore(Block, opts.blockBucket)
     const limit = limiter(100)
     const cids = await chunkFile(store, get, limit, opts.url, opts.headers)
     return cids.map(c => c.toString('base64'))
   } else {
-    return lambda(settings.parseFileLambda, opts)
+    return lambda(parameters.parseFileLambda, opts)
   }
 }
 
-const executeParseFiles = async (opts, settings) => {
-  if (settings.local) {
+const executeParseFiles = async (opts, parameters) => {
+  if (parameters.local) {
     const store = createStore(Block, opts.blockBucket)
     const limit = limiter(100)
     const ret = {}
@@ -29,7 +29,7 @@ const executeParseFiles = async (opts, settings) => {
     await limit.wait()
     return ret
   } else {
-    return lambda(settings.parseFileLambda, opts)
+    return lambda(parameters.parseFileLambda, opts)
   }
 }
 

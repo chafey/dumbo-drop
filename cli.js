@@ -3,10 +3,10 @@ const parseBucketV2 = require('./src/commands/pull-bucket')
 const createPartsV2 = require('./src/commands/create-parts')
 const commp = require('./src/commands/commp')
 const inspect = require('./src/commands/inspect')
-const makeSettings = require('./src/commands/pull-bucket/make-settings')
+const makeParameters = require('./src/commands/pull-bucket/make-parameters')
 const runPullBucketV2 = async argv => {
-  const settings = makeSettings(argv)
-  await parseBucketV2(settings)
+  const parameters = makeParameters(argv)
+  await parseBucketV2(parameters)
   console.log('all done :)')
   // for smoke test, exit immediately because it takes ~10 seconds otherwise (some kind of AWS-SDK related thing)
   if (process.env.DUMBO_DROP_SMOKE_TEST) {
