@@ -6,6 +6,9 @@ let interval
 
 const sizes = []
 
+const ONE_SECOND_IN_MS = 1000
+
+
 const print = (appState, bucket) => {
   const outs = { ...appState.display }
   outs.Bucket = bucket
@@ -26,7 +29,7 @@ const print = (appState, bucket) => {
   logUpdate(JSON.stringify(outs, null, 2))
 }
 
-const start = (appState, bucket, progressIntervalMS) => {
+const start = (appState, bucket, progressIntervalMS = ONE_SECOND_IN_MS) => {
   print(appState, bucket)
 
   interval = setInterval(() => {

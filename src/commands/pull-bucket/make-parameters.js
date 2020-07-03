@@ -18,14 +18,6 @@ const makeParameters = (argv) => {
     tableName: `dumbo-v2-${argv.bucket}`,
     // the name of the lambda function for parsing files
     parseFileLambda: process.env.DUMBO_PARSE_FILE_LAMBDA,
-    // internal settings (not configurable via cli)
-    internal: {
-      // how frequently the processing state should be saved
-      saveStateIntervalMS: 10000,
-      //saveStateIntervalMS: 100,
-      // how frequently the progress is updated
-      progressIntervalMS: 1000
-    }
   }
 }
 

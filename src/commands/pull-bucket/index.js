@@ -22,10 +22,10 @@ const run = async (parameters) => {
 
   // setup a timer to periodically save our current processing state so we can resume
   // if something goes wrong
-  stateFlusher.start(appState, parameters.bucket, parameters.internal.saveStateIntervalMS)
+  stateFlusher.start(appState, parameters.bucket)
 
   // start out progress display
-  progress.start(appState, parameters.bucket, parameters.internal.progressIntervalMS)
+  progress.start(appState, parameters.bucket)
 
   // process the bucket..
   await processBucket(startAfter, appState, parameters)

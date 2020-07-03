@@ -26,8 +26,6 @@ describe('make-parameters', () => {
     assert.equal(parameters.checkHead, false)
     assert.equal(parameters.force, false)
     assert.equal(parameters.local, false)
-    assert.equal(parameters.internal.saveStateIntervalMS, 10000)
-    assert.equal(parameters.internal.progressIntervalMS, 1000)
   })
 
 })
