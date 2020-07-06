@@ -4,6 +4,8 @@ const createPartsV2 = require('./src/commands/create-parts')
 const commp = require('./src/commands/commp')
 const inspect = require('./src/commands/inspect')
 const makeParameters = require('./src/commands/pull-bucket/make-parameters')
+const createPartsMakeParameters = require('./src/commands/create-parts/make-parameters')
+
 const runPullBucketV2 = async argv => {
   const parameters = makeParameters(argv)
   await parseBucketV2(parameters)
@@ -35,6 +37,12 @@ const bucketOptions = yargs => {
     type: 'boolean'
   })
 }
+
+const runCreateParts = async argv => {
+  const parameters = createPartsMakeParameters(argv)
+  await createPartsV2(argv, parameters)
+}
+
 
 const createParts2Options = yargs => {
   yargs.option('concurrency', {
@@ -93,7 +101,7 @@ const yargs = require('yargs')
 // eslint-disable-next-line
 const args = yargs
   .command('pull-bucket-v2 <bucket> [prefix]', 'Parse and store bucket in unique table', bucketOptions, runPullBucketV2)
-  .command('create-parts-v2 <bucket>', 'Create car files for each one gig data part', createParts2Options, createPartsV2)
+  .command('create-parts-v2 <bucket>', 'Create car files for each one gig data part', createParts2Options, runCreateParts)
   .command('inspect <bucket>', 'Inspect data about each entry for the bucket', inspectOptions, inspect)
   .command('commp <bucket>', 'Calculate and store commp for the CAR files in a bucket', commpOptions, commp)
   .argv

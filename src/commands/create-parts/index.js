@@ -11,31 +11,29 @@ const output = { completed: 0, completedBytes: 0, inflight: 0, updateQueue: 0, l
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 // entry point for file
-const run = async argv => {
+const run = async (argv, parameters) => {
+
+  console.log(parameters)
+
   // setup interval to print out progress/status
   if (!argv.silent) {
     progress.start(output)
   }
 
-  const local = argv.local
-
   // create bucket for cars
-  const { bucket, concurrency } = argv
   try {
-    await s3.createBucket({ Bucket: `dumbo-v2-cars-${bucket}`, ACL: 'public-read' }).promise()
+    await s3.createBucket({ Bucket: parameters.carFileBucket, ACL: 'public-read' }).promise()
   } catch (e) { /* noop */ }
 
-  const tableName = `dumbo-v2-${bucket}`
+  const db = require('../../queries')(parameters.tableName)
 
-  const db = require('../../queries')(tableName)
-
-  const limit = limiter(concurrency)
+  const limit = limiter(parameters.concurrency)
 
   // get list of urls to files or file slices to process and create cars from them
   // using the limiter
-  for await (const [size, urls] of getItemsForCARFile(db, bucket)) {
+  for await (const [size, urls] of getItemsForCARFile(db, parameters.bucket)) {
     if (urls.length > output.largest) output.largest = urls.length
-    await limit(createPart(bucket, db, urls, size, local, output))
+    await limit(createPart(db, urls, size, output, parameters))
     await sleep(50) // protect against max per second request limits
   }
   await limit.wait()
