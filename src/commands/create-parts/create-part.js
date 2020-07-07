@@ -11,7 +11,8 @@ const createPart = async (db, urls, size, output, parameters) => {
   }
 
   const query = { Bucket: parameters.carFileBucket, files, blockBucket: parameters.blockBucket }
-  const resp = await executeCreateParts(query, parameters.local)
+  const resp = await executeCreateParts(query, parameters.local, parameters)
+
   const { results, details, root } = resp
   const carUrl = details.Location
   const updates = []

@@ -13,7 +13,11 @@ module.exports = () => {
     getObject: params => {
       getParams.push(params)
       return {
-        promise: async () => { return "mockGetObjectData" }
+        promise: async () => {
+          return {
+            Body: "mockGetObjectData"
+          }
+        }
       }
     }
   }

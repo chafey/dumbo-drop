@@ -26,7 +26,7 @@ module.exports = (Block, Bucket, ACL = 'public-read', S3 = s3) => {
   const get = async cid => {
     const params = { Bucket, Key: encodeKey(cid) }
     const data = await S3.getObject(params).promise()
-    return Block.create(data, cid)
+    return Block.create(data.Body, cid)
   }
   return { put, get }
 }
