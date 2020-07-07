@@ -11,7 +11,7 @@ const executeCreateParts = async (query, local, parameters) => {
   if (local) {
     const files = query.files
     const store = createStore(Block, parameters.blockBucket)
-    const result = await createPart(files, parameters, store, s3stream)
+    const result = await createPart(files, parameters.carFileBucket, store, s3stream)
     return result
   } else {
     return lambda(process.env.DUMBO_CREATE_PART_LAMBDA, query)

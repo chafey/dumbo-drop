@@ -11,13 +11,10 @@ exports.handler = async (req) => {
   if (!req.query.Bucket || !req.query.blockBucket || !req.query.files) {
     throw new Error('Missing required arguments')
   }
-  const { files } = req.query
-  const parameters = {
-    carFileBucket: req.query.Bucket,
-  }
+
   const store = dumpDrop.store(Block, req.query.blockBucket)
 
-  const result = await dumboDrop.createPart(files, parameters, store, s3stream)
+  const result = await dumboDrop.createPart(req.query.files, req.query.Bucket, store, s3stream)
 
   return {
     headers: { 'content-type': 'application/json; charset=utf8' },

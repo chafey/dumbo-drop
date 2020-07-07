@@ -58,15 +58,12 @@ describe('create-part', () => {
     const files = {
       'https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR': [[(await block.cid()).toString('base64')], buffer.length]
     }
-    const parameters = {
-      carFileBucket: 'dumbo-v2-cars-chafey-dumbo-drop-test',
-      blockBucket: 'chafey-dumbo-drop-test-block'
-    }
+    const carFileBucket = 'dumbo-v2-cars-chafey-dumbo-drop-test'
     const store = makeMockStore()
     const mockS3Stream = {
       upload: mockCreateUploadStream
     }
-    const result = await createPart(files, parameters, store, mockS3Stream)
+    const result = await createPart(files, carFileBucket, store, mockS3Stream)
     console.log(result)
     assert(result)
     assert.equal(result.details.Location, "https://dumbo-v2-cars-chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/bafyreiduhdkabccfquemrjbddbpmwbsuwupvctud745x2ojtmeqgm3a4vi%2Fbafyreiduhdkabccfquemrjbddbpmwbsuwupvctud745x2ojtmeqgm3a4vi.car")

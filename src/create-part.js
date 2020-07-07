@@ -19,7 +19,7 @@ const createGetBlock = async (cacheBlocks, store) => {
 
 const onemeg = 1024 * 1024
 
-const createPart = async (files, parameters, store, s3stream) => {
+const createPart = async (files, carFileBucket, store, s3stream) => {
   const ret = {}
   const urls = {}
   const roots = []
@@ -52,7 +52,7 @@ const createPart = async (files, parameters, store, s3stream) => {
   const getBlock = await createGetBlock(dagBlocks, store)
   const opts = {
     ACL: 'public-read',
-    Bucket: parameters.carFileBucket,
+    Bucket: carFileBucket,
     Key: carFilename
   }
   const upload = s3stream.upload(opts)
