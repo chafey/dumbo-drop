@@ -8,6 +8,7 @@ const s3stream = require('s3-upload-stream')(s3)
 const dumboDrop = require('dumbo-drop')
 
 exports.handler = async (req) => {
+  console.log('get-create_part_v2 req.query=', req.query)
   if (!req.query.Bucket || !req.query.blockBucket || !req.query.files) {
     throw new Error('Missing required arguments')
   }

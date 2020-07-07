@@ -56,6 +56,7 @@ const createParts2Options = yargs => {
   })
 }
 
+/*
 const inspectOptions = yargs => {
   yargs.option('clean', {
     desc: 'Clean known bad data',
@@ -78,7 +79,7 @@ const inspectOptions = yargs => {
     default: false
   })
 }
-
+*/
 const commpOptions = yargs => {
   bucketOptions(yargs)
   yargs.option('concurrency', {
@@ -102,6 +103,6 @@ const yargs = require('yargs')
 const args = yargs
   .command('pull-bucket-v2 <bucket> [prefix]', 'Parse and store bucket in unique table', bucketOptions, runPullBucketV2)
   .command('create-parts-v2 <bucket>', 'Create car files for each one gig data part', createParts2Options, runCreateParts)
-  .command('inspect <bucket>', 'Inspect data about each entry for the bucket', inspectOptions, inspect)
+  //.command('inspect <bucket>', 'Inspect data about each entry for the bucket', inspectOptions, inspect)
   .command('commp <bucket>', 'Calculate and store commp for the CAR files in a bucket', commpOptions, commp)
   .argv

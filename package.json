@@ -20,8 +20,7 @@
     "yargs": "^15.1.0",
     "datastore-car": "ipld/js-datastore-car",
     "s3-upload-stream": "^1.0.7",
-    "unixfsv1-part-importer": "0.0.1",
-    "ipfs-for-car": "0.0.1"
+    "unixfsv1-part-importer": "0.0.1"
   },
   "devDependencies": {
     "c8": "^7.2.0",

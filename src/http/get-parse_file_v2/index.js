@@ -14,6 +14,8 @@ const parseFile = async (blockBucket, limit, url, headers, retries = 2) => {
 }
 
 exports.handler = async (req) => {
+  console.log('get-parse_file_v2 req.query=', req.query)
+
   const blockBucket = req.query.blockBucket
   if (!blockBucket) throw new Error('Must pass blockBucket in options')
   const limit = limiter(100)
