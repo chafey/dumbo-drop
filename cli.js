@@ -2,7 +2,7 @@
 const parseBucketV2 = require('./src/commands/pull-bucket')
 const createPartsV2 = require('./src/commands/create-parts')
 const commp = require('./src/commands/commp')
-const inspect = require('./src/commands/inspect')
+//const inspect = require('./src/commands/inspect')
 const makeParameters = require('./src/commands/pull-bucket/make-parameters')
 const createPartsMakeParameters = require('./src/commands/create-parts/make-parameters')
 

@@ -13,7 +13,7 @@ exports.handler = async (req) => {
     throw new Error('Missing required arguments')
   }
 
-  const store = dumpDrop.store(Block, req.query.blockBucket)
+  const store = dumboDrop.store(Block, req.query.blockBucket)
 
   const result = await dumboDrop.createPart(req.query.files, req.query.Bucket, store, s3stream)
 
