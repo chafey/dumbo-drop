@@ -17,7 +17,7 @@ const run = async (argv, parameters) => {
 
   // setup interval to print out progress/status
   if (!argv.silent) {
-    //progress.start(output)
+    progress.start(output)
   }
 
   // create bucket for cars

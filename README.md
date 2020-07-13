@@ -28,6 +28,9 @@ built.
 * Create Dynamo Table named `dumbo-v2-{source-bucket-name}`
   * partition key must be "url"
   * configure bucket to have its capacity "on-demand"
+* Create Dynamoc Table named "commp"
+  * primary partition key must be "key" (string)
+  * primary sort key "bucket" (string)
 * run `arc deploy`
   * get lambda function names
 
@@ -180,20 +183,22 @@ grant full access using the following policy:
 
 ## Questions for Mikeal
 
-1. db objects (for dynamodb) are created in several places, can we just use one instead?
-2. when a .state file is present, why are the last two characters of the filename returned for "startAfter"
+1. db objects (for dynamodb) are created in several places, can we just use one instead? [yes]
+2. when a .state file is present, why are the last two characters of the filename returned for "startAfter" [not sure]
 3. what is the purpose of the getUrl() logic where the path is different if the bucket has a . in it?
+   * Half to construct urls different if the bucket has a period in it?  may be some api in the aws-sdk that will
+     do this logic
 
 # Possible Refactorings/Enhancements
 
 * Replace single file functions with batch functions (parseFile->parseFiles, skipItem->skipItems, 
-  executeParseFile->executeParseFileslambda get-parse_file_v2)
-* autocreate AWS resources
+  executeParseFile->executeParseFileslambda get-parse_file_v2) [OK]
+* autocreate AWS resources [OK]
   * block bucket
   * dynamoddb table
   * car bucket
 * Move inflight and display "state" from appState to local state in the run-file/run-bulk files and exported via debug property?
-* Combine runFile with parseFile, runBulk with parseFiles
+* Combine runFile with parseFile, runBulk with parseFiles [OK]
 * rethink names.  
   * drop "v2".  
   * change pull-bucket to "prepare", "chunk" or something like that?
@@ -202,3 +207,39 @@ grant full access using the following policy:
 * better handle local vs lambda invocations (execute-parse-file is not clean).  Maybe a file/function for each and
   select in index.js and pass down?
 * Switch to use commandDir for yargs (moves config out of cli.js into actual commands)
+
+## DynamoDB Schema
+
+A single DynamoDB table is used to store the processing results for a dumbo drop run
+
+### Phase 1 Processing (IPLD Block Generation):
+
+Phase 1 produces three types of objects in the DynamoDB table:
+
+#### Object for each source file < 912 MB in size 
+* url - String- URL to the original source file 
+* dataset - String- the S3 bucket name that contains the original file
+* size - Number - the size of the file
+* parts - an array of Strings, each of which is a CID to the generated IPLD block
+
+#### Object for each source file > 912 MB in size 
+* url - String- URL to the original source file 
+* dataset - String- the S3 bucket name that contains the original file
+* size - Number - the size of the file
+* split - Boolean - true
+
+#### Object Schema for each 912 MB split for each source file > 912 MB
+* url - String- value `::split::${url}::${i}` where i is a zero based incrementing integer and url is the source file 
+* dataset - String- the S3 bucket name that contains the original file
+* size - Number - the size of the file
+* parts - an array of Strings, each of which is a CID to the generated IPLD block
+
+### Phase 2 Processing (CAR File Generation)
+
+Phase 2 updates objects in dynamodb with car file information:  
+
+#### Object Schema Changes for each source file < 1GB and each split for each source file > 1GB
+* carUrl - String - url to generated car file
+* root - array of 3 values - CID of car file, integer, CID of ?
+
+

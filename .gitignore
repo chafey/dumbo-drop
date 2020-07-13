@@ -10,3 +10,5 @@ yarn.lock
 sam.*
 .state*
 outfile.json
+commp.json
+parsebucket.out
