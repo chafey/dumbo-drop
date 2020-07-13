@@ -208,38 +208,42 @@ grant full access using the following policy:
   select in index.js and pass down?
 * Switch to use commandDir for yargs (moves config out of cli.js into actual commands)
 
-## DynamoDB Schema
+## Schema Documentation
 
-A single DynamoDB table is used to store the processing results for a dumbo drop run
+Two DynamoDB tables are used for Dumbo Drop processing.  A table dedicated to a source s3 bucket of files "BucketTable" and
+a shared commp table which holds commp calculations for car files from multiple source s3 buckets "CommpTable".
 
-### Phase 1 Processing (IPLD Block Generation):
+### BucketTable
 
-Phase 1 produces three types of objects in the DynamoDB table:
+Used to store information about source files and resulting CAR Files
 
-#### Object for each source file < 912 MB in size 
-* url - String- URL to the original source file 
-* dataset - String- the S3 bucket name that contains the original file
-* size - Number - the size of the file
-* parts - an array of Strings, each of which is a CID to the generated IPLD block
+* Primary partition key: url (String)
+* Primary sort key: - (none)
 
-#### Object for each source file > 912 MB in size 
-* url - String- URL to the original source file 
-* dataset - String- the S3 bucket name that contains the original file
-* size - Number - the size of the file
-* split - Boolean - true
+| Name      | Type     | Description |
+| --------- | -------- | ----------- |
+| url       | String   | URL to the source file or `::split::${url}::${i}` where i is a zero based incrementing integer and url is the source file | 
+| dataset   | String   | the S3 bucket name that contains the original file
+| size      | Number   | the size of the file or split
+| parts     | [String] | ordered list of IPLD block CIDs for this file or split
+| split     | Boolean  | true if this source file > 912 MB and therefore split, undefined/missing if not split
+| carUrl    | String   | url to generated car file.  Not present before phase 2 processing
+| root      | []       | array of 3 values CID of CAR file, integer of split #, CID of ?.  Not present before phase 2 processing 
 
-#### Object Schema for each 912 MB split for each source file > 912 MB
-* url - String- value `::split::${url}::${i}` where i is a zero based incrementing integer and url is the source file 
-* dataset - String- the S3 bucket name that contains the original file
-* size - Number - the size of the file
-* parts - an array of Strings, each of which is a CID to the generated IPLD block
+### CommPTable
 
-### Phase 2 Processing (CAR File Generation)
+Used to store the results of CommP calculation for CAR Files
 
-Phase 2 updates objects in dynamodb with car file information:  
+* Primary partition key: key (String)
+* Primary sort key: bucket (String)
 
-#### Object Schema Changes for each source file < 1GB and each split for each source file > 1GB
-* carUrl - String - url to generated car file
-* root - array of 3 values - CID of car file, integer, CID of ?
-
+| Name      | Type     | Description |
+| --------- | -------- | ----------- |
+| key       | String   | S3 Key to a CARFile (e.g. $CARCID/$CARCID.car) | 
+| bucket    | String   | S3 Bucket for the CAR File | 
+| region    | String   | the AWS region of the bucket | 
+| size      | Number   | The size of the CAR file | 
+| paddedSize| Number   | The padded size for the CAR file after fr32 padding | 
+| pieceSize | Number   | The piece size for the CAR file | 
+| root      | String   | ??Seems to be the CID of the CAR File?? | 
 
