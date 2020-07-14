@@ -1,11 +1,10 @@
 const AWS = require('aws-sdk')
 const awsConfig = require('aws-config')
 
-const getCarParts = async function* (Bucket) {
-  const opts = { Bucket }
+const getCarParts = async function* (bucket, s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })) {
+  const opts = { Bucket: bucket }
   let data
   do {
-    const s3 = new AWS.S3({ ...awsConfig(), correctCloseSkew: true })
     data = await s3.listObjectsV2(opts).promise()
     yield* data.Contents
     if (!data.Contents.length) {

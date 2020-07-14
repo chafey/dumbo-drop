@@ -64,7 +64,7 @@ describe('create-part', () => {
       upload: mockCreateUploadStream
     }
     const result = await createPart(files, carFileBucket, store, mockS3Stream)
-    console.log(result)
+    //console.log(result)
     assert(result)
     assert.equal(result.details.Location, "https://dumbo-v2-cars-chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/bafyreiduhdkabccfquemrjbddbpmwbsuwupvctud745x2ojtmeqgm3a4vi%2Fbafyreiduhdkabccfquemrjbddbpmwbsuwupvctud745x2ojtmeqgm3a4vi.car")
     assert.equal(result.details.Bucket, "dumbo-v2-cars-chafey-dumbo-drop-test")

@@ -5,8 +5,6 @@ const progress = require('../create-parts/progress')
 const executeCommP = require('./execute-commp')
 const makeCommandState = require('./make-command-state')
 
-//const output = { fails: 0, skips: 0, skippedBytes: 0, completed: 0, completedBytes: 0, inflight: 0 }
-
 const run = async (parameters) => {
   console.log(parameters)
   const state = makeCommandState()

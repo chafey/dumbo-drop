@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "AWS_SDK_LOAD_CONFIG=1 mocha test/test-*.js"
+    "test": "AWS_SDK_LOAD_CONFIG=1 mocha"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
