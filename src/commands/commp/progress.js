@@ -5,31 +5,31 @@ const ONE_SECOND_IN_MS = 1000
 
 const history = []
 
-const print = (output) => {
-  history.push(output.completedBytes)
+const print = (state) => {
+  history.push(state.completedBytes)
   while (history.length > 600) {
     history.shift()
   }
-  const outs = { ...output }
+  const outs = { ...state }
   outs.completedBytes = prettyBytes(outs.completedBytes)
   outs.skippedBytes = prettyBytes(outs.skippedBytes)
   outs.rate = prettyBytes((history[history.length - 1] - history[0]) / history.length) + ' per second'
   logUpdate(JSON.stringify(outs, null, 2))
 }
 
-const start = (output, progressIntervalMS = ONE_SECOND_IN_MS) => {
-  print(output)
+const start = (state, progressIntervalMS = ONE_SECOND_IN_MS) => {
+  print(state)
 
   interval = setInterval(() => {
-    print(output)
+    print(state)
   }, progressIntervalMS)
 }
 
-const stop = (output) => {
+const stop = (state) => {
   if (interval) {
     clearInterval(interval)
   }
-  print(output)
+  print(state)
 }
 
 module.exports = {
