@@ -215,5 +215,5 @@ grant full access using the following policy:
 
 ## Design Documentation
 
-* [DybamodDB Schema](SCHEMA.md)
+* [DynamodDB Schema](SCHEMA.md)
 * [CAR File Notes](CARFILE.md)
