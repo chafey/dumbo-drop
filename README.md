@@ -228,7 +228,8 @@ Used to store information about source files and resulting CAR Files
 | parts     | [String] | ordered list of IPLD block CIDs for this file or split
 | split     | Boolean  | true if this source file > 912 MB and therefore split, undefined/missing if not split
 | carUrl    | String   | url to generated car file.  Not present before phase 2 processing
-| root      | []       | array of 3 values CID of CAR file, integer of split #, CID of ?.  Not present before phase 2 processing 
+| root      | []       | 3 values - payloadCID (root cid/CAR Filename), offset (index of ), unixFSfileCID.  offset is the array index in the root of the CAR file
+array of 3 values - CID of CAR file, integer of file # in CAR file, CID of ?.  Not present before phase 2 processing 
 
 ### CommPTable
 
@@ -247,3 +248,11 @@ Used to store the results of CommP calculation for CAR Files
 | pieceSize | Number   | The piece size for the CAR file | 
 | root      | String   | ??Seems to be the CID of the CAR File?? | 
 
+### CAR File Format Notes
+
+* Has one root - a dag-cbor encoded block with an array of UnixFSV1 CIDs
+ 
+
+## New Design Thoughts
+
+* enhance cli to have an "init" command (like npm init) that initializes a folder for a given S3 bucket
