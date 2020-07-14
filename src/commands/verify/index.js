@@ -7,6 +7,7 @@ const exporter = require('ipfs-unixfs-exporter')
 
 const makeIPLD = async (carUrl) => {
   const carDatastore = await CarDatastore.readStreamComplete(await get(carUrl))
+  console.log('roots=', (await carDatastore.getRoots())[0])
   return {
     get: async (cid, options) => {
       const buffer = await carDatastore.get(cid)
@@ -27,7 +28,7 @@ run = async (argv, parameters) => {
     const sourceFileStream = await get(fileParts.url)
     const sourceFileBuffer = await sourceFileStream.arrayBuffer()
     if (fileParts.size !== sourceFileBuffer.length) {
-      console.log("ERROR - file size mismatch", filePars.size, sourceFileBuffer.length)
+      console.log("ERROR - file size mismatch", fileParts.size, sourceFileBuffer.length)
       continue
     }
     let sourceFileBufferIndex = 0
@@ -39,7 +40,7 @@ run = async (argv, parameters) => {
       const unixFSV1CID = carFile.root[2]
 
       const entry = await exporter(unixFSV1CID, ipld)
-      //console.log('entry.name,type=', entry.name, entry.unixfs.type)
+      //console.log(entry.node._links[0]._cid)
       for await (const chunk of entry.content()) {
         //console.log('chunk.length=', chunk.length)
         for (var i = 0; i < chunk.length; i++) {
