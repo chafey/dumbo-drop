@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const parseBucketV2 = require('./src/commands/pull-bucket')
 const createPartsV2 = require('./src/commands/create-parts')
+const commpMakeParameters = require('./src/commands/commp/make-parameters')
 const commp = require('./src/commands/commp')
 //const inspect = require('./src/commands/inspect')
 const makeParameters = require('./src/commands/pull-bucket/make-parameters')
@@ -100,15 +101,18 @@ const commpOptions = yargs => {
   })
 }
 
+const runCommp = async argv => {
+  const parameters = commpMakeParameters(argv)
+  await commp(parameters)
+}
+
 const runVerify = async argv => {
   const parameters = verifyMakeParameters(argv)
   await verify(argv, parameters)
 }
 
-
 const verifyOptions = yargs => {
 }
-
 
 const yargs = require('yargs')
 // eslint-disable-next-line
@@ -116,6 +120,6 @@ const args = yargs
   .command('pull-bucket-v2 <bucket> [prefix]', 'Parse and store bucket in unique table', bucketOptions, runPullBucketV2)
   .command('create-parts-v2 <bucket>', 'Create car files for each one gig data part', createParts2Options, runCreateParts)
   //.command('inspect <bucket>', 'Inspect data about each entry for the bucket', inspectOptions, inspect)
-  .command('commp <bucket>', 'Calculate and store commp for the CAR files in a bucket', commpOptions, commp)
+  .command('commp <bucket>', 'Calculate and store commp for the CAR files in a bucket', commpOptions, runCommp)
   .command('verify <bucket>', 'Verifies each file in <bucket> can be restored from CAR files', verifyOptions, runVerify)
   .argv
