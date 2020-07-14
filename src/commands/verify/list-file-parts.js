@@ -10,14 +10,15 @@ const listFileParts = async function* (startAfter, parameters) {
     // get information about each file
     const url = getURL(fileInfo.Key, parameters.bucket)
 
-    const item = await db.getItem(url, ['url', 'parts', 'split', 'carUrl', 'size'])
+    const item = await db.getItem(url, ['url', 'parts', 'split', 'carUrl', 'size', 'root'])
     if (item.split) {
       const numSplits = item.size / limits.MAX_CAR_FILE_SIZE
       const carFiles = []
       for (i = 0; i < numSplits; i++) {
         const splitUrl = `::split::${url}::${i}`
-        const item = await db.getItem(splitUrl, ['url', 'parts', 'carUrl', 'size'])
+        const item = await db.getItem(splitUrl, ['url', 'parts', 'carUrl', 'size', 'root'])
         carFiles.push({
+          root: item.root,
           url: item.carUrl,
           parts: item.parts
         })
@@ -32,6 +33,7 @@ const listFileParts = async function* (startAfter, parameters) {
         url,
         size: item.size,
         carFiles: [{
+          root: item.root,
           url: item.carUrl,
           parts: item.parts
         }]

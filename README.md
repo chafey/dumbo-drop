@@ -228,8 +228,7 @@ Used to store information about source files and resulting CAR Files
 | parts     | [String] | ordered list of IPLD block CIDs for this file or split
 | split     | Boolean  | true if this source file > 912 MB and therefore split, undefined/missing if not split
 | carUrl    | String   | url to generated car file.  Not present before phase 2 processing
-| root      | []       | 3 values - payloadCID (root cid/CAR Filename), offset (index of ), unixFSfileCID.  offset is the array index in the root of the CAR file
-array of 3 values - CID of CAR file, integer of file # in CAR file, CID of ?.  Not present before phase 2 processing 
+| root      | []       | 3 values - payloadCID/root cid in CAR file, offset unixFSFile CID in payload/root, unixFSfileCID.  
 
 ### CommPTable
 
@@ -246,12 +245,7 @@ Used to store the results of CommP calculation for CAR Files
 | size      | Number   | The size of the CAR file | 
 | paddedSize| Number   | The padded size for the CAR file after fr32 padding | 
 | pieceSize | Number   | The piece size for the CAR file | 
-| root      | String   | ??Seems to be the CID of the CAR File?? | 
-
-### CAR File Format Notes
-
-* Has one root - a dag-cbor encoded block with an array of UnixFSV1 CIDs
- 
+| root      | String   | payloadCID / root cid in CAR file 
 
 ## New Design Thoughts
 
