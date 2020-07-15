@@ -1,10 +1,8 @@
 const lambda = require('../../lambda').raw
 
-const request = lambda()
-
 let mutex
 
-const commp = async (db, key, state, parameters) => {
+const commp = async (db, key, state, parameters, request = lambda()) => {
   const opts = { region: 'us-west-2', bucket: parameters.bucket, key }
   state.inflight += 1
   let commP
