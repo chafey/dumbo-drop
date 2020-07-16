@@ -10,7 +10,7 @@ const runBulk = async (db, _bulk, appState, parameters) => {
     keyMap[info.url] = info.Key
     return info
   })
-  const found = await skipItems.skipItems(db, Object.keys(files), parameters.checkHead, parameters.force)
+  const found = await skipItems(db, Object.keys(files), parameters.checkHead, parameters.force)
   for (const url of found) {
     appState.display.skippedBytes += files[url]
     delete files[url]

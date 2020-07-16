@@ -4,7 +4,7 @@ const parseFile = require('./parse-file')
 // Function to parse a single file
 const runFile = async (db, info, appState, parameters, limits) => {
   if (info.Size) {
-    if (parameters.force || !(await skipItems.skipItem(db, info.url, parameters.checkHead))) {
+    if (parameters.force || !(await skipItems(db, [info.url], parameters.checkHead, parameters.force)).size) {
       appState.inflight.push(info.Key)
       await parseFile.parseFile(db, info.url, info.Size, limits, parameters)
       appState.display.processedFiles += 1
