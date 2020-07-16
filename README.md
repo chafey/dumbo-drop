@@ -212,6 +212,18 @@ grant full access using the following policy:
 ## New Design Thoughts
 
 * enhance cli to have an "init" command (like npm init) that initializes a folder for a given S3 bucket
+* add a phase .5 which scans a bucket, verifies each file can be accessed and adds an entry to the dynamodb table for it
+  * Creating a list of files to process first will allow us to
+    * Identify any file access problems as soon as possible so they can be corrected
+    * Understand dataset statistics (total byte count, total file count, file size statistics)
+    * Show progress and estimate processing time/cost
+    * Detect changes in the bucket (file size changed, files added/removed)
+    * Make creation deterministic/repeatable (since dynamodb can return keys in sorted order
+  * Take phase .5 as input, generate a plan that maps files to CAR files
+  * Take the plan and generate the CAR files directly from source files
+* log errors to stderr so they can redirected to a file
+* add verbose mode - logs every action to stdout
+* 
 
 ## Design Documentation
 
