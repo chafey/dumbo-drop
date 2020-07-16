@@ -1,5 +1,5 @@
 const saveFile = require('./save-file')
-const executeParseFile = require('./execute-parse-file')
+const executeParseFiles = require('./execute-parse-files')
 
 // parses a file by invoking the lambda function to read the file,
 // chunk it into IPLD blocks, store those blocks in S3 and write
@@ -8,18 +8,20 @@ const executeParseFile = require('./execute-parse-file')
 // limit, then it is split into multiple pieces in dynamo to work around
 // a data size limit in dynamo
 const parseFile = async (db, url, size, limits, parameters) => {
-  let opts = { url, blockBucket: parameters.blockBucket }
   let parts = []
   if (size < limits.MAX_CAR_FILE_SIZE) {
-    parts = await executeParseFile.executeParseFile(opts, parameters)
+    let opts = { urls: [url], blockBucket: parameters.blockBucket }
+    const result = await executeParseFiles(opts, parameters)
+    const parts = result[url]
     const resp = await saveFile.saveFile(db, url, parameters.bucket, parts, size)
     return resp
   } else {
     let i = 0
     const splits = []
     while (i < size) {
-      opts = { url, headers: { Range: `bytes=${i}-${(i + limits.MAX_CAR_FILE_SIZE) - 1}` }, blockBucket: parameters.blockBucket }
-      const chunks = await executeParseFile.executeParseFile(opts, parameters)
+      opts = { urls: [url], headers: { Range: `bytes=${i}-${(i + limits.MAX_CAR_FILE_SIZE) - 1}` }, blockBucket: parameters.blockBucket }
+      const result = await executeParseFiles(opts, parameters)
+      const chunks = result[url]
       splits.push(chunks)
       i += limits.MAX_CAR_FILE_SIZE
     }
@@ -33,7 +35,7 @@ const parseFile = async (db, url, size, limits, parameters) => {
 const parseFiles = async (db, files, parameters) => {
   const urls = Object.keys(files)
   const opts = { urls, blockBucket: parameters.blockBucket }
-  const resp = await executeParseFile.executeParseFiles(opts, parameters)
+  const resp = await executeParseFiles(opts, parameters)
   const writes = []
   for (const [url, parts] of Object.entries(resp)) {
     writes.push(saveFile.saveFile(db, url, parameters.bucket, parts, files[url]))

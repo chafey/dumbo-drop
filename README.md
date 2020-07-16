@@ -184,8 +184,7 @@ grant full access using the following policy:
 
 # Possible Refactorings/Enhancements
 
-* Replace single file functions with batch functions (parseFile->parseFiles, skipItem->skipItems, 
-  executeParseFile->executeParseFileslambda get-parse_file_v2) [OK]
+* Replace single file functions with batch functions (parseFile->parseFiles, skipItem->skipItems) [OK]
 * autocreate AWS resources [OK]
   * block bucket
   * dynamoddb table

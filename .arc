@@ -2,8 +2,8 @@
 DumboDrop
 
 @http
-get /create-part-v2
-get /parse-file-v2
+get /create-part
+get /parse-files
 
 @aws
 profile default
