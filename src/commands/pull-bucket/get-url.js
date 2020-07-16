@@ -1,7 +1,6 @@
 const AWS = require('aws-sdk')
 
 const getURL = (key, bucket, aws = AWS) => {
-  // TODO: Document why this path exists @mikeal?
   if (bucket.includes('.')) {
     return `https://s3.amazonaws.com/${bucket}/${AWS.util.uriEscapePath(key)}`
   } else {

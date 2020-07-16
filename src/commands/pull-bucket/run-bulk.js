@@ -20,7 +20,6 @@ const runBulk = async (db, _bulk, appState, parameters) => {
   const urls = Object.keys(files)
   if (urls.length) {
     urls.forEach(url => appState.inflight.push(keyMap[url]))
-    const db = require('../../queries')(parameters.tableName)
     await parseFile.parseFiles(db, files, parameters)
     urls.forEach(url => appState.inflight.splice(appState.inflight.indexOf(keyMap[url]), 1))
     appState.display.processedFiles += urls.length

@@ -1,4 +1,3 @@
-const queries = require('../../queries')
 const limiter = require('../../limiter')
 const getCarParts = require('./get-car-parts')
 const progress = require('../create-parts/progress')
@@ -12,7 +11,7 @@ const run = async (parameters) => {
     progress.start(state)
   }
   const limit = limiter(parameters.concurrency)
-  const db = queries(parameters.tableName)
+  const db = require('../../queries')(parameters.tableName)
   for await (const { Key } of getCarParts(parameters.bucket)) {
     if (!Key.endsWith('.car')) continue
     const item = await db.getItem({ key: Key, bucket: parameters.bucket })

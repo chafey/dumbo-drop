@@ -26,8 +26,6 @@ describe('pull-bucket', () => {
 
     it('saveFile succeeds', async () => {
       const db = makeMockDB()
-      //const tableName = 'dumbo-v2-chafey-dumbo-drop-test'
-      //const db = require('../src/queries')(tableName)
       const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/CT1_J2KR"
       const dataset = "chafey-dumbo-drop-test"
       const parts = ['mAVUSIBIfd3Bfjibu+qyv4Ne+zI3ULJtVU+PcuQQoPZqWyfFq']
@@ -64,8 +62,6 @@ describe('pull-bucket', () => {
         MAX_CAR_FILE_SIZE: 1024 * 1024 * 4
       }
       const db = makeMockDB()
-      //const tableName = 'dumbo-v2-chafey-dumbo-drop-test'
-      //const db = require('../src/queries')(tableName)
       const url = "https://chafey-dumbo-drop-test.s3.us-west-2.amazonaws.com/MG1_J2KR"
       const dataset = "chafey-dumbo-drop-test"
       const size = 12233370

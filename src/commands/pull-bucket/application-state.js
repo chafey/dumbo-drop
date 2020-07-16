@@ -23,7 +23,6 @@ const getDefault = () => {
 const resumeFrom = (previousState, appState) => {
   appState.display.skippedBytes = previousState.completed
   if (previousState.startAfter) {
-    // TODO: document why we remove the last 2 characters @mikeal
     const startAfter = previousState.startAfter.slice(0, previousState.startAfter.length - 2)
     return startAfter
   }

@@ -1,10 +1,9 @@
 const listFiles = require('../pull-bucket/list-files')
-const queries = require('../../queries')
 const getURL = require('../pull-bucket/get-url')
 const limits = require('../../limits')
 
 const listFileParts = async function* (startAfter, parameters) {
-  const db = queries(parameters.tableName)
+  const db = require('../../queries')(parameters.tableName)
 
   for await (let fileInfo of listFiles.ls(startAfter, parameters)) {
     // get information about each file

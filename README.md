@@ -181,13 +181,6 @@ grant full access using the following policy:
 * DynamoDB is designed for relatively small documents (~10k).  For large files, we get much
   larger than this (400k)      
 
-## Questions for Mikeal
-
-1. db objects (for dynamodb) are created in several places, can we just use one instead? [yes]
-2. when a .state file is present, why are the last two characters of the filename returned for "startAfter" [not sure]
-3. what is the purpose of the getUrl() logic where the path is different if the bucket has a . in it?
-   * Half to construct urls different if the bucket has a period in it?  may be some api in the aws-sdk that will
-     do this logic
 
 # Possible Refactorings/Enhancements
 
