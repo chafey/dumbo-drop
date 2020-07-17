@@ -9,7 +9,7 @@ describe('commp', () => {
       assert(makeParameters)
     })
 
-    it('returns object', async () => {
+    it('success', async () => {
       const argv = {
         bucket: "test-bucket",
         concurrency: 1000,

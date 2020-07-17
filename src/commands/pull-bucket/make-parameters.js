@@ -13,7 +13,7 @@ const makeParameters = (argv) => {
     // true if we should run processing using a local function, false to use lambda
     local: argv.local,
     // the S3 bucket to write IPLD blocks too
-    blockBucket: process.env.DUMBO_BLOCK_STORE,
+    blockBucket: process.env.DUMBO_BLOCK_BUCKET,
     // the dynamodb table name to write processed entries to
     tableName: `dumbo-v2-${argv.bucket}`,
     // the name of the lambda function for parsing files

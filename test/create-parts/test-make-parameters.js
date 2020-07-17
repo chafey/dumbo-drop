@@ -1,11 +1,10 @@
 /* eslint-env mocha */
 const assert = require('assert')
 
-const makeParameters = require('../../src/commands/pull-bucket/make-parameters')
+const makeParameters = require('../../src/commands/create-parts/make-parameters')
 
-describe('pull-bucket', () => {
+describe('create-parts', () => {
   describe('make-parameters', () => {
-
     it('exports function', async () => {
       assert(makeParameters)
     })
@@ -13,28 +12,20 @@ describe('pull-bucket', () => {
     it('success', async () => {
       const argv = {
         bucket: "test-bucket",
-        prefix: undefined,
         concurrency: 1000,
-        checkHead: false,
-        force: false,
-        local: false,
+        local: true,
       }
       process.env.DUMBO_BLOCK_BUCKET = 'test-bucket-block'
-      process.env.DUMBO_PARSE_FILE_LAMBDA = 'DumboDrop_GetParseFile'
+      process.env.DUMBO_CREATE_PART_LAMBDA = 'DumboDrop_CreatePart'
 
       const parameters = makeParameters(argv)
-
       assert(parameters)
       assert.equal(parameters.bucket, 'test-bucket')
-      assert.equal(parameters.prefix, undefined)
       assert.equal(parameters.concurrency, 1000)
-      assert.equal(parameters.checkHead, false)
-      assert.equal(parameters.force, false)
-      assert.equal(parameters.local, false)
+      assert.equal(parameters.local, true)
       assert.equal(parameters.blockBucket, "test-bucket-block")
       assert.equal(parameters.tableName, "dumbo-v2-test-bucket")
-      assert.equal(parameters.parseFileLambda, "DumboDrop_GetParseFile")
+      assert.equal(parameters.createPartLambda, "DumboDrop_CreatePart")
     })
   })
 })
-

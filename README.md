@@ -137,7 +137,7 @@ Take the lambda urls from the s3 console for GetParseFileV2
 
 Export S3 bucket to use for IPLD Block Store
 
-> export DUMBO_BLOCK_STORE=chafey-dump-drop-test-block2
+> export DUMBO_BLOCK_BUCKET=chafey-dump-drop-test-block2
 
 Import your data:
 
@@ -180,26 +180,6 @@ grant full access using the following policy:
     file overhead, unixfs overhead and some padding needed for commp generation
 * DynamoDB is designed for relatively small documents (~10k).  For large files, we get much
   larger than this (400k)      
-
-
-# Possible Refactorings/Enhancements
-
-* Replace single file functions with batch functions (parseFile->parseFiles) [OK]
-* autocreate AWS resources [OK]
-  * block bucket
-  * dynamoddb table
-  * car bucket
-* Move inflight and display "state" from appState to local state in the run-file/run-bulk files and exported via debug property?
-* Combine runFile with parseFile, runBulk with parseFiles [OK]
-* rethink names.  
-  * drop "v2".  
-  * change pull-bucket to "prepare", "chunk" or something like that?
-  * runFile -> processFile, runBulk ->processFiles
-  * parseFile->processFile (combine with runFile), parseFiles->processFiles (combine with runBulk)
-* better handle local vs lambda invocations (execute-parse-file is not clean).  Maybe a file/function for each and
-  select in index.js and pass down?
-* Switch to use commandDir for yargs (moves config out of cli.js into actual commands)
-
 
 ## New Design Thoughts
 
