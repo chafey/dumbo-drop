@@ -7,6 +7,8 @@ const makeParameters = require('./src/commands/pull-bucket/make-parameters')
 const createPartsMakeParameters = require('./src/commands/create-parts/make-parameters')
 const verifyMakeParameters = require('./src/commands/verify/make-parameters')
 const verify = require('./src/commands/verify')
+const checkMakeParameters = require('./src/commands/check/make-parameters')
+const check = require('./src/commands/check')
 
 const runPullBucket = async argv => {
   const parameters = makeParameters(argv)
@@ -86,6 +88,15 @@ const runVerify = async argv => {
 const verifyOptions = yargs => {
 }
 
+const runCheck = async argv => {
+  const parameters = checkMakeParameters(argv)
+  await check(argv, parameters)
+}
+
+const checkOptions = yargs => {
+}
+
+
 const yargs = require('yargs')
 // eslint-disable-next-line
 const args = yargs
@@ -93,4 +104,5 @@ const args = yargs
   .command('create-parts <bucket>', 'Create car files for each one gig data part', createPartsOptions, runCreateParts)
   .command('commp <bucket>', 'Calculate and store commp for the CAR files in a bucket', commpOptions, runCommp)
   .command('verify <bucket>', 'Verifies each file in <bucket> can be restored from CAR files', verifyOptions, runVerify)
+  .command('check <bucket>', 'Check to ensure all files in <bucket> are accessble and in DynamoDB', checkOptions, runCheck)
   .argv

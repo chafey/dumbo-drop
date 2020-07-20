@@ -4,8 +4,9 @@ The DumboDrop project encodes source files from an S3 bucket into UnixFSV1 Files
 
 ## Notes
 
-* The maximum size of a Filecoin CAR file is 1GB.  Since this 1GB must include space for encoding overhead (UnixFSV1, CAR) and FR32 padding,
-  we can only store a total of 912 MB of content in a CAR file
+* DumboDrop generates Filecoin CAR Files of maximum size 1GB.  
+  * Filecoin actually supports much larger CAR Files than this, a smaller file size was needed due to processing limits in AWS Lambda
+  * Since this 1GB must include space for encoding overhead (UnixFSV1, CAR) and FR32 padding, we can only store a total of 912 MB of content in a CAR file
 * Source files < 912MB are always stored as a single UnixFSV1 File
 * Source files >= 912MB are split into multiple UnixFSV1 files of size 912MB.
   * The filename for each split is `::split::${url}::${i}` where i is the split number (0 based) and url is the source file url 
