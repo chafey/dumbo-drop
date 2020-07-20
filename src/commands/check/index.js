@@ -7,7 +7,7 @@ const limiter = require('../../limiter')
 
 const getUrlLocal = (key, parameters) => {
   if (parameters.useOldUrls) {
-    return `https://${bucket}.s3.amazonaws.com/${AWS.util.uriEscapePath(key)}`
+    return `https://${parameters.bucket}.s3.amazonaws.com/${AWS.util.uriEscapePath(key)}`
   } else {
     return getUrl(key, parameters.bucket)
   }
