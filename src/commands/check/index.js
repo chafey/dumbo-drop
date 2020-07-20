@@ -3,28 +3,43 @@ const getUrl = require('../pull-bucket/get-url')
 const bent = require('bent')
 const get = bent(200, 206)
 const queries = require('../../queries')
+const limiter = require('../../limiter')
+
+const getUrlLocal = (key, parameters) => {
+  if (parameters.useOldUrls) {
+    return `https://${bucket}.s3.amazonaws.com/${AWS.util.uriEscapePath(key)}`
+  } else {
+    return getUrl(key, parameters.bucket)
+  }
+}
+
+const checkFile = async (db, url) => {
+  // verify accessibility of file by reading from it
+  try {
+    const sourceFileStream = await get(url)
+    const item = await db.getItem(url, ['url', 'parts', 'carUrl', 'size', 'root'])
+    if (!item) {
+      console.error('File not in db', url)
+    }
+  }
+  catch (err) {
+    console.error("Unable to access file", url, err)
+  }
+}
 
 run = async (argv, parameters) => {
   const startAfter = undefined
 
   const db = queries(parameters.tableName)
 
-  for await (let file of listFiles.ls(startAfter, parameters)) {
-    //console.log('file=', file)
-    const url = getUrl(file.Key, parameters.bucket)
-    console.log('source file url,size = ', url, file.Size)
+  let fileCount = 0
 
-    // verify accessibility of file by reading from it
-    try {
-      const sourceFileStream = await get(url)
-      const item = await db.getItem(url, ['url', 'parts', 'carUrl', 'size', 'root'])
-      if (!item) {
-        console.error('File not in db', url)
-      }
-    }
-    catch (err) {
-      console.error("Unable to access file", url)
-    }
+  const limit = limiter(parameters.concurrency)
+
+  for await (let file of listFiles.ls(startAfter, parameters)) {
+    const url = getUrlLocal(file.Key, parameters)
+    console.log(`#${fileCount++} ${url} ${file.Size}`)
+    await limit(checkFile(db, url))
   }
 }
 

@@ -6,6 +6,8 @@ const makeParameters = (argv) => {
     concurrency: argv.concurrency,
     // the dynamodb table name to write processed entries to
     tableName: `dumbo-v2-${argv.bucket}`,
+    // true if we use old url style, false if new
+    useOldUrls: argv.useOldUrls
   }
 }
 

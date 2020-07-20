@@ -94,6 +94,15 @@ const runCheck = async argv => {
 }
 
 const checkOptions = yargs => {
+  yargs.option('concurrency', {
+    desc: 'Concurrent requests',
+    default: 100
+  })
+  yargs.option('useOldUrls', {
+    desc: 'Use Old URL Style (https://${bucket}.s3.amazonaws.com/${key})',
+    default: false
+  })
+
 }
 
 
