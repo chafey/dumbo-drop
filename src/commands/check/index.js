@@ -6,6 +6,8 @@ const queries = require('../../queries')
 const limiter = require('../../limiter')
 const AWS = require('aws-sdk')
 
+const sleep = ts => new Promise(resolve => setTimeout(resolve, ts))
+
 const getUrlLocal = (key, parameters) => {
   if (parameters.useOldUrls) {
     return `https://${parameters.bucket}.s3.amazonaws.com/${AWS.util.uriEscapePath(key)}`
@@ -14,17 +16,32 @@ const getUrlLocal = (key, parameters) => {
   }
 }
 
+const checkFileAccess = async (url) => {
+  const MAX_ATTEMPTS = 5
+  let attempt = 0
+  let error
+  while (++attempt <= MAX_ATTEMPTS) {
+    try {
+      const sourceFileStream = await get(url)
+      return true
+    }
+    catch (err) {
+      error = err
+      console.log(`${err.errno} ${attempt}/${MAX_ATTEMPTS} ${url}`)
+      await sleep(1000)
+    }
+  }
+  console.error(`${error} ${url}`)
+  return false
+}
+
 const checkFile = async (db, url) => {
   // verify accessibility of file by reading from it
-  try {
-    const sourceFileStream = await get(url)
+  if (await checkFileAccess(url)) {
     const item = await db.getItem(url, ['url', 'parts', 'carUrl', 'size', 'root'])
     if (!item) {
       console.error('File not in db', url)
     }
-  }
-  catch (err) {
-    console.error("Unable to access file", url, err)
   }
 }
 
