@@ -4,6 +4,7 @@ const bent = require('bent')
 const get = bent(200, 206)
 const queries = require('../../queries')
 const limiter = require('../../limiter')
+const AWS = require('aws-sdk')
 
 const getUrlLocal = (key, parameters) => {
   if (parameters.useOldUrls) {
